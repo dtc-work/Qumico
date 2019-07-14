@@ -1,0 +1,2 @@
+model_checkpoint_path: "tiny_yolo2_backup.ckpt"
+all_model_checkpoint_paths: "tiny_yolo2_backup.ckpt"

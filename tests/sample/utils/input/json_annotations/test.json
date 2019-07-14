@@ -1,0 +1,112 @@
+{
+  "annotation": {
+    "folder": "ダウンロード",
+    "filename": "test.jpg",
+    "path": "/home/guest/ダウンロード/test.jpg",
+    "source": { "database": "Unknown" },
+    "size": {
+      "width": "4032",
+      "height": "3024",
+      "depth": "3"
+    },
+    "segmented": "0",
+    "object": [
+      {
+        "name": "person",
+        "pose": "Unspecified",
+        "truncated": "1",
+        "difficult": "0",
+        "bndbox": {
+          "xmin": "618",
+          "ymin": "1770",
+          "xmax": "1096",
+          "ymax": "3024"
+        }
+      },
+      {
+        "name": "person",
+        "pose": "Unspecified",
+        "truncated": "1",
+        "difficult": "0",
+        "bndbox": {
+          "xmin": "1237",
+          "ymin": "1903",
+          "xmax": "1722",
+          "ymax": "3024"
+        }
+      },
+      {
+        "name": "person",
+        "pose": "Unspecified",
+        "truncated": "0",
+        "difficult": "0",
+        "bndbox": {
+          "xmin": "1742",
+          "ymin": "1790",
+          "xmax": "1991",
+          "ymax": "2470"
+        }
+      },
+      {
+        "name": "person",
+        "pose": "Unspecified",
+        "truncated": "0",
+        "difficult": "0",
+        "bndbox": {
+          "xmin": "2067",
+          "ymin": "1877",
+          "xmax": "2178",
+          "ymax": "2170"
+        }
+      },
+      {
+        "name": "person",
+        "pose": "Unspecified",
+        "truncated": "0",
+        "difficult": "0",
+        "bndbox": {
+          "xmin": "2176",
+          "ymin": "1883",
+          "xmax": "2287",
+          "ymax": "2172"
+        }
+      },
+      {
+        "name": "person",
+        "pose": "Unspecified",
+        "truncated": "0",
+        "difficult": "0",
+        "bndbox": {
+          "xmin": "2636",
+          "ymin": "1881",
+          "xmax": "2724",
+          "ymax": "2188"
+        }
+      },
+      {
+        "name": "person",
+        "pose": "Unspecified",
+        "truncated": "0",
+        "difficult": "0",
+        "bndbox": {
+          "xmin": "2778",
+          "ymin": "1846",
+          "xmax": "2891",
+          "ymax": "2181"
+        }
+      },
+      {
+        "name": "car",
+        "pose": "Unspecified",
+        "truncated": "0",
+        "difficult": "0",
+        "bndbox": {
+          "xmin": "2891",
+          "ymin": "1915",
+          "xmax": "3924",
+          "ymax": "2292"
+        }
+      }
+    ]
+  }
+}

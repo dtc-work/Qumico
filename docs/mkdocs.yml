@@ -1,0 +1,53 @@
+site_name: Qumico
+# Project information
+site_name: 'Qumico'
+site_description: 'Documents for Qumico project'
+site_author: 'Pasonatech, inc'
+
+# Copyright
+copyright: 'Copyright (c) 2019'
+
+# Documentation and theme
+docs_dir: 'docs'
+theme: 'material'
+
+# Options
+extra:
+
+  palette:
+    primary: 'Light Blue'
+    accent: 'Orange'
+  font:
+    text: 'Roboto'
+    code: 'Roboto Mono'
+  i18n:
+    prev: 'Previous'
+    next: 'Next'
+  author:
+    github: 'yourName'
+    twitter: 'yourName'
+
+# Extensions
+markdown_extensions:
+  - codehilite
+  - admonition
+  - toc:
+      permalink: '#'
+
+nav:
+  - Home: index.md
+  - インストール方法: install/install.md
+  - サンプルの動作: 
+    - サンプルの説明: samples/sample.md
+    - MLP: samples/mlp.md
+    - Convolution: samples/conv.md
+    - VGG16: samples/vgg16.md
+    - Tiny-YOLO: samples/tiny-yolo.md
+  - 出力ファイル: output/output.md
+  - APIs: API/api.md
+  - Util関数: utils/util.md
+  - FAQ: FAQ/faq.md
+
+repo_url: 'https://github.com/PasonaTech-Inc/Qumico'
+
+
