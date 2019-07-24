@@ -4,3 +4,4 @@ tensorflow>=1.13, <2.0
 Keras
 numpy
 pillow
+opencv-python
