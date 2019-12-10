@@ -19,7 +19,6 @@ class QumicoBackend(Backend):
     """ Qumico Backend for ONNX
     """
     out_c_path = path.abspath(QUMICO_EXPORT_ROOT_PATH)
-
     def __init__(self, out_c_path=None):
 
         if out_c_path is not None:
@@ -36,8 +35,6 @@ class QumicoBackend(Backend):
           and the converted tensorflow model.
         :return: QucmioRep object.
         """
-        handlers = cls._get_handlers(opset)
-
         
         # tf_rep_graph = tf.Graph()
         # with tf_rep_graph.as_default():
@@ -75,7 +72,7 @@ class QumicoBackend(Backend):
         prev = None
 
         for node in graph_def.node:
-            onnx_node = QumicoNode(node,inputs=tensor_dict, outputs_info=(o.dtype, o.shape), device=device)
+            onnx_node = QumicoNode(node,inputs=tensor_dict, opset=opset, outputs_info=(o.dtype, o.shape), device=device)
             tensor_dict.update(onnx_node.op.output_tensor._asdict())
             if optimize is not None:
                 if optimizer.FusePrevTranspose in optimize.options:
@@ -196,47 +193,6 @@ class QumicoBackend(Backend):
         if 'opset_version' in kwargs:
             model.opset_import[0].version = kwargs['opset_version']
         return cls.prepare(model, device,**kwargs).run(inputs, **kwargs)
-
-
-    @classmethod
-    def _onnx_node_to_qumico_op(cls,
-                                  node,
-                                  tensor_dict,
-                                  handlers=None,
-                                  opset=None,
-                                  strict=True):
-        """
-        Convert onnx node to tensorflow op.
-
-        Args:
-            node: Onnx node object.
-            tensor_dict: Tensor dict of graph.
-            opset: Opset version of the operator set. Default 0 means using latest version.
-            strict: whether to enforce semantic equivalence between the original model
-                and the converted tensorflow model, defaults to True (yes, enforce semantic equivalence).
-                Changing to False is strongly discouraged.
-        Returns:
-            Qumico op
-    """
-        handlers = handlers or cls._get_handlers(opset)
-        handler = handlers[node.domain].get(node.op_type, None)
-
-        if handler:
-            return handler.handle(node, tensor_dict=tensor_dict, strict=strict)
-        else:
-            exception.OP_UNIMPLEMENTED_EXCEPT(node.op_type)
-
-
-    @classmethod
-    def _get_handlers(cls, opset):
-        """ Get all backend handlers with opset.
-        :param opset: ONNX OperatorSetIdProto list.
-        :return: All backend handlers.
-        """
-
-        opset = opset or [make_opsetid(defs.ONNX_DOMAIN, defs.onnx_opset_version())]
-        opset_dict = dict([(o.domain, o.version) for o in opset])
-        return get_all_backend_handlers(opset_dict)
 
 
     @classmethod

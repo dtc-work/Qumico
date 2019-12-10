@@ -26,7 +26,8 @@ typedef enum {
 	QMC_FIX8, // 5
 	QMC_FIX16, // 6
 	QMC_FLOAT16, // 7
-    //----
-	QMC_DTYPE_NONE // 8
+    QMC_INT64, // 8
+	//----
+	QMC_DTYPE_NONE // 9
 } QMC_DTYPE;
 

@@ -15,8 +15,8 @@ def np2c(dtype):
 
 TENSOR_TYPE_TO_C_TYPE_STRING = {
     TensorProto.FLOAT: "float",
-    TensorProto.UINT8: "char",
-    TensorProto.INT8: "char",
+    TensorProto.UINT8: "uint8_t",
+    TensorProto.INT8: "int8_t",
     TensorProto.UINT16: "unsigned short int",
     TensorProto.INT16: "short int",
     TensorProto.INT32: "int",

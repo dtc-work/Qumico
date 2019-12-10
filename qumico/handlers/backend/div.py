@@ -12,7 +12,7 @@ from qumico.common import data_type
 from .math_mixin import ArithmeticMixin
 
 
-@onnx_op("Div")
+@onnx_op('Div')
 class Div(ArithmeticMixin, BackendHandler):
     
     @classmethod
@@ -23,7 +23,7 @@ class Div(ArithmeticMixin, BackendHandler):
         
         output_value = {node.valid_var_name(node.outputs[0]): 
                         np.ones(shape=c.shape, dtype=c.dtype)}
-        output_tensor =namedtupledict("output_tensor", output_value.keys())(**output_value)
+        output_tensor =namedtupledict('output_tensor', output_value.keys())(**output_value)
             
         return cls(node, input_tensor=node.input_tensor,
                    output_tensor=output_tensor, **kwargs)
@@ -31,44 +31,44 @@ class Div(ArithmeticMixin, BackendHandler):
 
     @classmethod
     def get_param_type_name(cls):
-        return   "DivOpParam"
+        return   'DivOpParam'
 
 
     @classmethod
     def get_c_op_file_name(cls):
-        return ["div.c"]
+        return ['div.c']
 
 
     @classmethod
     @BackendHandler.dec_generate_once(resType=list)
     def get_c_op_include_header(cls):
-        return ["stdio.h"]
+        return ['stdio.h']
 
 
     @classmethod
     @BackendHandler.dec_generate_once()
     def get_c_param_type(cls):
         return cleandoc(
-            """
+            '''
             typedef struct {
                 char* name;
                 int ndim;
                 int* shape;
                 void *value;
             } DivOpParam;
-            """)
+            ''')
 
     
     def generate_c_code(self, **kwargs):
-        res =""
+        res =''
 
         # include header
-        res += "\n".join([c_helper.generate_local_include(h) for h in self.get_c_op_include_header()])
-        res +="\n\n"
+        res += '\n'.join([c_helper.generate_local_include(h) for h in self.get_c_op_include_header()])
+        res +='\n\n'
 
         # param type
         res += self.get_c_param_type()
-        res +="\n\n"
+        res +='\n\n'
 
         # 1
         TemplateArrayAddLoop = c_helper.generate_ndim_for_loop(np.ones(self.output_tensor_shapes[0]))
@@ -76,14 +76,14 @@ class Div(ArithmeticMixin, BackendHandler):
 
         # 2
         mapping = {}
-        TemplateStatements = "{C}{CStatementDims} = {X}{XStatementDims} / {Y}{YStatementDims};"
-        mapping.update({"X": self.input_tensor_names[0]})
-        mapping.update({"Y": self.input_tensor_names[1]})
-        mapping.update({"C": self.output_tensor_names[0]})
+        TemplateStatements = '{C}{CStatementDims} = {X}{XStatementDims} / {Y}{YStatementDims};'
+        mapping.update({'X': self.input_tensor_names[0]})
+        mapping.update({'Y': self.input_tensor_names[1]})
+        mapping.update({'C': self.output_tensor_names[0]})
 
-        XStatementDims = ""
-        YStatementDims = ""
-        CStatementDims = ""
+        XStatementDims = ''
+        YStatementDims = ''
+        CStatementDims = ''
 
         X, Y = self.input_tensor_values
 
@@ -92,74 +92,74 @@ class Div(ArithmeticMixin, BackendHandler):
                                                               reversed(string.ascii_lowercase[8:8 + self.output_tensor_ndims[0]])):
             if element_num_x is not None :
                 if element_num_x == 1:
-                    XStatementDims  =  "[0]" + XStatementDims
+                    XStatementDims  =  '[0]' + XStatementDims
                 else:
-                    XStatementDims  =  "[{0}]".format(step) + XStatementDims
+                    XStatementDims  =  '[{0}]'.format(step) + XStatementDims
 
             if element_num_y is not None :
                 if element_num_y == 1:
-                    YStatementDims  = "[0]" + YStatementDims
+                    YStatementDims  = '[0]' + YStatementDims
                 else:
-                    YStatementDims  = "[{0}]".format(step) + YStatementDims
+                    YStatementDims  = '[{0}]'.format(step) + YStatementDims
 
-            CStatementDims = "[{0}]".format(step) + CStatementDims
+            CStatementDims = '[{0}]'.format(step) + CStatementDims
         else:
             # when ndim =0 add [0] for scalar
             if self.input_tensor_ndims[0] == 0:
-                XStatementDims = "[0]"
+                XStatementDims = '[0]'
 
             if self.input_tensor_ndims[1] == 0:
-                YStatementDims = "[0]"
+                YStatementDims = '[0]'
 
             if self.output_tensor_ndims[0] == 0:
-                CStatementDims = "[0]"      
+                CStatementDims = '[0]'      
         
-        mapping.update({"XStatementDims": XStatementDims})
-        mapping.update({"YStatementDims": YStatementDims})
-        mapping.update({"CStatementDims": CStatementDims})
+        mapping.update({'XStatementDims': XStatementDims})
+        mapping.update({'YStatementDims': YStatementDims})
+        mapping.update({'CStatementDims': CStatementDims})
 
 
-        TemplateFunction = cleandoc("""
+        TemplateFunction = cleandoc('''
         void {op_func_name}(void *op_param,{t} {X}{XDims} , {t} {Y}{YDims}, {t} {C}{CDims}, void *inputs_params, void* outputs_params)
         {{
         {statements}
         }}
-        """)
+        ''')
         mappingf = {}
-        mappingf.update({"op_func_name": self.get_func_name()})
-        mappingf.update({"X": self.input_tensor_names[0]})
-        mappingf.update({"Y": self.input_tensor_names[1]})
-        mappingf.update({"C": self.output_tensor_names[0]})
-        mappingf.update({"XDims":c_helper.generate_dim_bracket(self.input_tensor_shapes[0])})
-        mappingf.update({"YDims":c_helper.generate_dim_bracket(self.input_tensor_shapes[1])})
-        mappingf.update({"CDims": c_helper.generate_dim_bracket(self.output_tensor_shapes[0])})
-        mappingf.update({"t": data_type.np2c(self.output_tensor_dtypes[0])})
-        mappingf.update({"statements": TemplateArrayAddLoop.replace("[statements]", TemplateStatements.format(**mapping))})
-        res += "\n\n"
+        mappingf.update({'op_func_name': self.get_func_name()})
+        mappingf.update({'X': self.input_tensor_names[0]})
+        mappingf.update({'Y': self.input_tensor_names[1]})
+        mappingf.update({'C': self.output_tensor_names[0]})
+        mappingf.update({'XDims':c_helper.generate_dim_bracket(self.input_tensor_shapes[0])})
+        mappingf.update({'YDims':c_helper.generate_dim_bracket(self.input_tensor_shapes[1])})
+        mappingf.update({'CDims': c_helper.generate_dim_bracket(self.output_tensor_shapes[0])})
+        mappingf.update({'t': data_type.np2c(self.output_tensor_dtypes[0])})
+        mappingf.update({'statements': TemplateArrayAddLoop.replace('[statements]', TemplateStatements.format(**mapping))})
+        res += '\n\n'
         res += TemplateFunction.format(**mappingf)
 
         return res
 
 
     def gen_op_variables(self, node, node_num, **kwargs):
-        TemplateVariavbles = cleandoc("""
+        TemplateVariavbles = cleandoc('''
             int OpShapeNode{node_num}[] = {{{shape}}};
             int OutputShapeNode{node_num}[] = {{{shape}}};
-            """)
+            ''')
 
         ndim = self.output_tensor_ndims[0]
         shape = self.output_tensor_shapes[0]
 
         mapping = {}
-        mapping .update({"shape": ",".join(map(str,shape[:ndim]))})
-        mapping .update({"node_num": str(node_num)})
+        mapping .update({'shape': ','.join(map(str,shape[:ndim]))})
+        mapping .update({'node_num': str(node_num)})
 
         return TemplateVariavbles.format(**mapping)        
 
 
     def gen_init_func(self, node, node_num, indent=4, **kwargs):
 
-        TemplateInitFunc=cleandoc("""
+        TemplateInitFunc=cleandoc('''
         {indent}// define input & output
         {indent}{node_param_name}.ndim = {ndim};
         {indent}{node_param_name}.shape= OpShapeNode{node_num};
@@ -167,15 +167,15 @@ class Div(ArithmeticMixin, BackendHandler):
         {indent}Nodes[{node_num}].outputs = &{output_val_name};
         {indent}Nodes[{node_num}].output_ndim = {ndim};
         {indent}Nodes[{node_num}].output_shape = OutputShapeNode{node_num};
-        """)
+        ''')
 
         mapping = {}
-        mapping.update({"node_param_name": node.node_param_name})
-        mapping.update({"node_num": str(node_num)})
-        mapping.update({"add_name": self.get_name()})
-        mapping.update({"ndim":str(self.output_tensor_ndims[0])})
-        mapping.update({"output_val_name": self.output_tensor_names[0]})
-        mapping.update({"indent":" " * indent})
+        mapping.update({'node_param_name': node.node_param_name})
+        mapping.update({'node_num': str(node_num)})
+        mapping.update({'add_name': self.get_name()})
+        mapping.update({'ndim':str(self.output_tensor_ndims[0])})
+        mapping.update({'output_val_name': self.output_tensor_names[0]})
+        mapping.update({'indent':' ' * indent})
 
         return TemplateInitFunc.format(**mapping)
 

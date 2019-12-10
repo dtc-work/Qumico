@@ -7,6 +7,7 @@ class OptimizeHandler:
     OnceCalled = defaultdict(bool)
     NAME_GEN = defaultdict(int)
     _instances = set()
+    Quantizable =False
 
     def __init__(self):
         self.NAME_GEN[self.__class__] +=1

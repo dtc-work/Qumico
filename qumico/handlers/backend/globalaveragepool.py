@@ -12,7 +12,7 @@ from qumico.handlers.handler import onnx_op
 from qumico.common import c_helper
 from qumico.common import data_type
 
-@onnx_op("GlobalAveragePool")
+@onnx_op('GlobalAveragePool')
 
 class GlobalAveragePool(BackendHandler):
 
@@ -22,31 +22,31 @@ class GlobalAveragePool(BackendHandler):
         attrs = node.attrs
 
         if (input_data1.ndim == 3):
-            attrs["kernel_shape"] = (input_data1.shape[-1], )
-            if (attrs.get("strides") == None):
-                attrs["strides"] = (1,)
+            attrs['kernel_shape'] = (input_data1.shape[-1], )
+            if (attrs.get('strides') == None):
+                attrs['strides'] = (1,)
 
     # pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]
-            auto_pad = attrs.get("auto_pad")
-            if (attrs.get("pads") == None):
-                if (auto_pad == "SAME_UPPER"):
-                    attrs["pads"] = (
-                        math.floor(((math.ceil(input_data1.shape[2]/attrs["strides"][0]) -1) * attrs["strides"][0] + attrs["kernel_shape"][0] - input_data1.shape[2])/2),
-                        math.ceil(((math.ceil(input_data1.shape[2]/attrs["strides"][0]) -1) * attrs["strides"][0] + attrs["kernel_shape"][0] - input_data1.shape[2])/2),
+            auto_pad = attrs.get('auto_pad')
+            if (attrs.get('pads') == None):
+                if (auto_pad == 'SAME_UPPER'):
+                    attrs['pads'] = (
+                        math.floor(((math.ceil(input_data1.shape[2]/attrs['strides'][0]) -1) * attrs['strides'][0] + attrs['kernel_shape'][0] - input_data1.shape[2])/2),
+                        math.ceil(((math.ceil(input_data1.shape[2]/attrs['strides'][0]) -1) * attrs['strides'][0] + attrs['kernel_shape'][0] - input_data1.shape[2])/2),
                     )
-                elif (auto_pad == "SAME_LOWER"):
-                    attrs["pads"] = (
-                        math.ceil(((math.ceil(input_data1.shape[2]/attrs["strides"][0]) -1) * attrs["strides"][0] + attrs["kernel_shape"][0] - input_data1.shape[2])/2),
-                        math.floor(((math.ceil(input_data1.shape[2]/attrs["strides"][0]) -1) * attrs["strides"][0] + attrs["kernel_shape"][0] - input_data1.shape[2])/2),
+                elif (auto_pad == 'SAME_LOWER'):
+                    attrs['pads'] = (
+                        math.ceil(((math.ceil(input_data1.shape[2]/attrs['strides'][0]) -1) * attrs['strides'][0] + attrs['kernel_shape'][0] - input_data1.shape[2])/2),
+                        math.floor(((math.ceil(input_data1.shape[2]/attrs['strides'][0]) -1) * attrs['strides'][0] + attrs['kernel_shape'][0] - input_data1.shape[2])/2),
                     )
-                elif (auto_pad == "VALID"):
-                    attrs["pads"] = (0,0)
-                elif (auto_pad == "NOTSET" or auto_pad == None):
-                    attrs["pads"] = (0,0)
-            if (attrs.get("storage_order") == None):
-                attrs["storage_order"] = 0
-            if (attrs.get("count_include_pad") == None):
-                attrs["count_include_pad"] = 0
+                elif (auto_pad == 'VALID'):
+                    attrs['pads'] = (0,0)
+                elif (auto_pad == 'NOTSET' or auto_pad == None):
+                    attrs['pads'] = (0,0)
+            if (attrs.get('storage_order') == None):
+                attrs['storage_order'] = 0
+            if (attrs.get('count_include_pad') == None):
+                attrs['count_include_pad'] = 0
 
     # SAME: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])
     # VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])
@@ -54,42 +54,42 @@ class GlobalAveragePool(BackendHandler):
             tmp_shape = []
             for d in range(0, input_data1.ndim-1):
                 tmp_shape.append(input_data1.shape[d])
-            if (auto_pad == "SAME_UPPER") or (auto_pad == "SAME_LOWER"):
-                tmp_shape.append(math.ceil(input_data1.shape[-1]/attrs["strides"][-1]))
-            elif (auto_pad == "VALID"):
-                tmp_shape.append(math.ceil((input_data1.shape[-1] - attrs["kernel_shape"][-1] +1)/attrs["strides"][-1]))
+            if (auto_pad == 'SAME_UPPER') or (auto_pad == 'SAME_LOWER'):
+                tmp_shape.append(math.ceil(input_data1.shape[-1]/attrs['strides'][-1]))
+            elif (auto_pad == 'VALID'):
+                tmp_shape.append(math.ceil((input_data1.shape[-1] - attrs['kernel_shape'][-1] +1)/attrs['strides'][-1]))
             else:
-                tmp_shape.append(math.floor((input_data1.shape[-1] + attrs["pads"][0] + attrs["pads"][-1] - attrs["kernel_shape"][-1])/attrs["strides"][-1] +1))
+                tmp_shape.append(math.floor((input_data1.shape[-1] + attrs['pads'][0] + attrs['pads'][-1] - attrs['kernel_shape'][-1])/attrs['strides'][-1] +1))
         elif (input_data1.ndim == 4):
-            attrs["kernel_shape"] = (input_data1.shape[-2], input_data1.shape[-1])
-            if (attrs.get("strides") == None):
-                attrs["strides"] = (1,1)
+            attrs['kernel_shape'] = (input_data1.shape[-2], input_data1.shape[-1])
+            if (attrs.get('strides') == None):
+                attrs['strides'] = (1,1)
 
     # pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]
-            auto_pad = attrs.get("auto_pad")
-            if (attrs.get("pads") == None):
-                if (auto_pad == "SAME_UPPER"):
-                    attrs["pads"] = (
-                        math.floor(((math.ceil(input_data1.shape[2]/attrs["strides"][0]) -1) * attrs["strides"][0] + attrs["kernel_shape"][0] - input_data1.shape[2])/2),
-                        math.floor(((math.ceil(input_data1.shape[3]/attrs["strides"][1]) -1) * attrs["strides"][1] + attrs["kernel_shape"][1] - input_data1.shape[3])/2),
-                        math.ceil(((math.ceil(input_data1.shape[2]/attrs["strides"][0]) -1) * attrs["strides"][0] + attrs["kernel_shape"][0] - input_data1.shape[2])/2),
-                        math.ceil(((math.ceil(input_data1.shape[3]/attrs["strides"][1]) -1) * attrs["strides"][1] + attrs["kernel_shape"][1] - input_data1.shape[3])/2)
+            auto_pad = attrs.get('auto_pad')
+            if (attrs.get('pads') == None):
+                if (auto_pad == 'SAME_UPPER'):
+                    attrs['pads'] = (
+                        math.floor(((math.ceil(input_data1.shape[2]/attrs['strides'][0]) -1) * attrs['strides'][0] + attrs['kernel_shape'][0] - input_data1.shape[2])/2),
+                        math.floor(((math.ceil(input_data1.shape[3]/attrs['strides'][1]) -1) * attrs['strides'][1] + attrs['kernel_shape'][1] - input_data1.shape[3])/2),
+                        math.ceil(((math.ceil(input_data1.shape[2]/attrs['strides'][0]) -1) * attrs['strides'][0] + attrs['kernel_shape'][0] - input_data1.shape[2])/2),
+                        math.ceil(((math.ceil(input_data1.shape[3]/attrs['strides'][1]) -1) * attrs['strides'][1] + attrs['kernel_shape'][1] - input_data1.shape[3])/2)
                     )
-                elif (auto_pad == "SAME_LOWER"):
-                    attrs["pads"] = (
-                        math.ceil(((math.ceil(input_data1.shape[2]/attrs["strides"][0]) -1) * attrs["strides"][0] + attrs["kernel_shape"][0] - input_data1.shape[2])/2),
-                        math.ceil(((math.ceil(input_data1.shape[3]/attrs["strides"][1]) -1) * attrs["strides"][1] + attrs["kernel_shape"][1] - input_data1.shape[3])/2),
-                        math.floor(((math.ceil(input_data1.shape[2]/attrs["strides"][0]) -1) * attrs["strides"][0] + attrs["kernel_shape"][0] - input_data1.shape[2])/2),
-                        math.floor(((math.ceil(input_data1.shape[3]/attrs["strides"][1]) -1) * attrs["strides"][1] + attrs["kernel_shape"][1] - input_data1.shape[3])/2)
+                elif (auto_pad == 'SAME_LOWER'):
+                    attrs['pads'] = (
+                        math.ceil(((math.ceil(input_data1.shape[2]/attrs['strides'][0]) -1) * attrs['strides'][0] + attrs['kernel_shape'][0] - input_data1.shape[2])/2),
+                        math.ceil(((math.ceil(input_data1.shape[3]/attrs['strides'][1]) -1) * attrs['strides'][1] + attrs['kernel_shape'][1] - input_data1.shape[3])/2),
+                        math.floor(((math.ceil(input_data1.shape[2]/attrs['strides'][0]) -1) * attrs['strides'][0] + attrs['kernel_shape'][0] - input_data1.shape[2])/2),
+                        math.floor(((math.ceil(input_data1.shape[3]/attrs['strides'][1]) -1) * attrs['strides'][1] + attrs['kernel_shape'][1] - input_data1.shape[3])/2)
                     )
-                elif (auto_pad == "VALID"):
-                    attrs["pads"] = (0,0,0,0)
-                elif (auto_pad == "NOTSET" or auto_pad == None):
-                    attrs["pads"] = (0,0,0,0)
-            if (attrs.get("storage_order") == None):
-                attrs["storage_order"] = 0
-            if (attrs.get("count_include_pad") == None):
-                attrs["count_include_pad"] = 0
+                elif (auto_pad == 'VALID'):
+                    attrs['pads'] = (0,0,0,0)
+                elif (auto_pad == 'NOTSET' or auto_pad == None):
+                    attrs['pads'] = (0,0,0,0)
+            if (attrs.get('storage_order') == None):
+                attrs['storage_order'] = 0
+            if (attrs.get('count_include_pad') == None):
+                attrs['count_include_pad'] = 0
 
     # SAME: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])
     # VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])
@@ -97,49 +97,49 @@ class GlobalAveragePool(BackendHandler):
             tmp_shape = []
             for d in range(0, input_data1.ndim-2):
                 tmp_shape.append(input_data1.shape[d])
-            if (auto_pad == "SAME_UPPER") or (auto_pad == "SAME_LOWER"):
-                tmp_shape.append(math.ceil(input_data1.shape[-2]/attrs["strides"][-2]))
-                tmp_shape.append(math.ceil(input_data1.shape[-1]/attrs["strides"][-1]))
-            elif (auto_pad == "VALID"):
-                tmp_shape.append(math.ceil((input_data1.shape[-2] - attrs["kernel_shape"][-2] +1)/attrs["strides"][-2]))
-                tmp_shape.append(math.ceil((input_data1.shape[-1] - attrs["kernel_shape"][-1] +1)/attrs["strides"][-1]))
+            if (auto_pad == 'SAME_UPPER') or (auto_pad == 'SAME_LOWER'):
+                tmp_shape.append(math.ceil(input_data1.shape[-2]/attrs['strides'][-2]))
+                tmp_shape.append(math.ceil(input_data1.shape[-1]/attrs['strides'][-1]))
+            elif (auto_pad == 'VALID'):
+                tmp_shape.append(math.ceil((input_data1.shape[-2] - attrs['kernel_shape'][-2] +1)/attrs['strides'][-2]))
+                tmp_shape.append(math.ceil((input_data1.shape[-1] - attrs['kernel_shape'][-1] +1)/attrs['strides'][-1]))
             else:
-                tmp_shape.append(math.floor((input_data1.shape[-2] + attrs["pads"][0] + attrs["pads"][-2] - attrs["kernel_shape"][-2])/attrs["strides"][-2] +1))
-                tmp_shape.append(math.floor((input_data1.shape[-1] + attrs["pads"][1] + attrs["pads"][-1] - attrs["kernel_shape"][-1])/attrs["strides"][-1] +1))
+                tmp_shape.append(math.floor((input_data1.shape[-2] + attrs['pads'][0] + attrs['pads'][-2] - attrs['kernel_shape'][-2])/attrs['strides'][-2] +1))
+                tmp_shape.append(math.floor((input_data1.shape[-1] + attrs['pads'][1] + attrs['pads'][-1] - attrs['kernel_shape'][-1])/attrs['strides'][-1] +1))
         elif (input_data1.ndim == 5):
-            attrs["kernel_shape"] = (input_data1.shape[-3], input_data1.shape[-2], input_data1.shape[-1])
-            if (attrs.get("strides") == None):
-                attrs["strides"] = (1,1,1)
+            attrs['kernel_shape'] = (input_data1.shape[-3], input_data1.shape[-2], input_data1.shape[-1])
+            if (attrs.get('strides') == None):
+                attrs['strides'] = (1,1,1)
 
     # pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]
-            auto_pad = attrs.get("auto_pad")
-            if (attrs.get("pads") == None):
-                if (auto_pad == "SAME_UPPER"):
-                    attrs["pads"] = (
-                        math.floor(((math.ceil(input_data1.shape[2]/attrs["strides"][0]) -1) * attrs["strides"][0] + attrs["kernel_shape"][0] - input_data1.shape[2])/2),
-                        math.floor(((math.ceil(input_data1.shape[3]/attrs["strides"][1]) -1) * attrs["strides"][1] + attrs["kernel_shape"][1] - input_data1.shape[3])/2),
-                        math.floor(((math.ceil(input_data1.shape[4]/attrs["strides"][2]) -1) * attrs["strides"][2] + attrs["kernel_shape"][2] - input_data1.shape[4])/2),
-                        math.ceil(((math.ceil(input_data1.shape[2]/attrs["strides"][0]) -1) * attrs["strides"][0] + attrs["kernel_shape"][0] - input_data1.shape[2])/2),
-                        math.ceil(((math.ceil(input_data1.shape[3]/attrs["strides"][1]) -1) * attrs["strides"][1] + attrs["kernel_shape"][1] - input_data1.shape[3])/2),
-                        math.ceil(((math.ceil(input_data1.shape[4]/attrs["strides"][2]) -1) * attrs["strides"][2] + attrs["kernel_shape"][2] - input_data1.shape[4])/2)
+            auto_pad = attrs.get('auto_pad')
+            if (attrs.get('pads') == None):
+                if (auto_pad == 'SAME_UPPER'):
+                    attrs['pads'] = (
+                        math.floor(((math.ceil(input_data1.shape[2]/attrs['strides'][0]) -1) * attrs['strides'][0] + attrs['kernel_shape'][0] - input_data1.shape[2])/2),
+                        math.floor(((math.ceil(input_data1.shape[3]/attrs['strides'][1]) -1) * attrs['strides'][1] + attrs['kernel_shape'][1] - input_data1.shape[3])/2),
+                        math.floor(((math.ceil(input_data1.shape[4]/attrs['strides'][2]) -1) * attrs['strides'][2] + attrs['kernel_shape'][2] - input_data1.shape[4])/2),
+                        math.ceil(((math.ceil(input_data1.shape[2]/attrs['strides'][0]) -1) * attrs['strides'][0] + attrs['kernel_shape'][0] - input_data1.shape[2])/2),
+                        math.ceil(((math.ceil(input_data1.shape[3]/attrs['strides'][1]) -1) * attrs['strides'][1] + attrs['kernel_shape'][1] - input_data1.shape[3])/2),
+                        math.ceil(((math.ceil(input_data1.shape[4]/attrs['strides'][2]) -1) * attrs['strides'][2] + attrs['kernel_shape'][2] - input_data1.shape[4])/2)
                     )
-                elif (auto_pad == "SAME_LOWER"):
-                    attrs["pads"] = (
-                        math.ceil(((math.ceil(input_data1.shape[2]/attrs["strides"][0]) -1) * attrs["strides"][0] + attrs["kernel_shape"][0] - input_data1.shape[2])/2),
-                        math.ceil(((math.ceil(input_data1.shape[3]/attrs["strides"][1]) -1) * attrs["strides"][1] + attrs["kernel_shape"][1] - input_data1.shape[3])/2),
-                        math.ceil(((math.ceil(input_data1.shape[4]/attrs["strides"][2]) -1) * attrs["strides"][2] + attrs["kernel_shape"][2] - input_data1.shape[4])/2),
-                        math.floor(((math.ceil(input_data1.shape[2]/attrs["strides"][0]) -1) * attrs["strides"][0] + attrs["kernel_shape"][0] - input_data1.shape[2])/2),
-                        math.floor(((math.ceil(input_data1.shape[3]/attrs["strides"][1]) -1) * attrs["strides"][1] + attrs["kernel_shape"][1] - input_data1.shape[3])/2),
-                        math.floor(((math.ceil(input_data1.shape[4]/attrs["strides"][2]) -1) * attrs["strides"][2] + attrs["kernel_shape"][2] - input_data1.shape[4])/2)
+                elif (auto_pad == 'SAME_LOWER'):
+                    attrs['pads'] = (
+                        math.ceil(((math.ceil(input_data1.shape[2]/attrs['strides'][0]) -1) * attrs['strides'][0] + attrs['kernel_shape'][0] - input_data1.shape[2])/2),
+                        math.ceil(((math.ceil(input_data1.shape[3]/attrs['strides'][1]) -1) * attrs['strides'][1] + attrs['kernel_shape'][1] - input_data1.shape[3])/2),
+                        math.ceil(((math.ceil(input_data1.shape[4]/attrs['strides'][2]) -1) * attrs['strides'][2] + attrs['kernel_shape'][2] - input_data1.shape[4])/2),
+                        math.floor(((math.ceil(input_data1.shape[2]/attrs['strides'][0]) -1) * attrs['strides'][0] + attrs['kernel_shape'][0] - input_data1.shape[2])/2),
+                        math.floor(((math.ceil(input_data1.shape[3]/attrs['strides'][1]) -1) * attrs['strides'][1] + attrs['kernel_shape'][1] - input_data1.shape[3])/2),
+                        math.floor(((math.ceil(input_data1.shape[4]/attrs['strides'][2]) -1) * attrs['strides'][2] + attrs['kernel_shape'][2] - input_data1.shape[4])/2)
                     )
-                elif (auto_pad == "VALID"):
-                    attrs["pads"] = (0,0,0,0,0,0)
-                elif (auto_pad == "NOTSET" or auto_pad == None):
-                    attrs["pads"] = (0,0,0,0,0,0)
-            if (attrs.get("storage_order") == None):
-                attrs["storage_order"] = 0
-            if (attrs.get("count_include_pad") == None):
-                attrs["count_include_pad"] = 0
+                elif (auto_pad == 'VALID'):
+                    attrs['pads'] = (0,0,0,0,0,0)
+                elif (auto_pad == 'NOTSET' or auto_pad == None):
+                    attrs['pads'] = (0,0,0,0,0,0)
+            if (attrs.get('storage_order') == None):
+                attrs['storage_order'] = 0
+            if (attrs.get('count_include_pad') == None):
+                attrs['count_include_pad'] = 0
 
     # SAME: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])
     # VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])
@@ -147,18 +147,18 @@ class GlobalAveragePool(BackendHandler):
             tmp_shape = []
             for d in range(0, input_data1.ndim-3):
                 tmp_shape.append(input_data1.shape[d])
-            if (auto_pad == "SAME_UPPER") or (auto_pad == "SAME_LOWER"):
-                tmp_shape.append(math.ceil(input_data1.shape[-3]/attrs["strides"][-3]))
-                tmp_shape.append(math.ceil(input_data1.shape[-2]/attrs["strides"][-2]))
-                tmp_shape.append(math.ceil(input_data1.shape[-1]/attrs["strides"][-1]))
-            elif (auto_pad == "VALID"):
-                tmp_shape.append(math.ceil((input_data1.shape[-3] - attrs["kernel_shape"][-3] +1)/attrs["strides"][-3]))
-                tmp_shape.append(math.ceil((input_data1.shape[-2] - attrs["kernel_shape"][-2] +1)/attrs["strides"][-2]))
-                tmp_shape.append(math.ceil((input_data1.shape[-1] - attrs["kernel_shape"][-1] +1)/attrs["strides"][-1]))
+            if (auto_pad == 'SAME_UPPER') or (auto_pad == 'SAME_LOWER'):
+                tmp_shape.append(math.ceil(input_data1.shape[-3]/attrs['strides'][-3]))
+                tmp_shape.append(math.ceil(input_data1.shape[-2]/attrs['strides'][-2]))
+                tmp_shape.append(math.ceil(input_data1.shape[-1]/attrs['strides'][-1]))
+            elif (auto_pad == 'VALID'):
+                tmp_shape.append(math.ceil((input_data1.shape[-3] - attrs['kernel_shape'][-3] +1)/attrs['strides'][-3]))
+                tmp_shape.append(math.ceil((input_data1.shape[-2] - attrs['kernel_shape'][-2] +1)/attrs['strides'][-2]))
+                tmp_shape.append(math.ceil((input_data1.shape[-1] - attrs['kernel_shape'][-1] +1)/attrs['strides'][-1]))
             else:
-                tmp_shape.append(math.floor((input_data1.shape[-3] + attrs["pads"][0] + attrs["pads"][-3] - attrs["kernel_shape"][-3])/attrs["strides"][-3] +1))
-                tmp_shape.append(math.floor((input_data1.shape[-2] + attrs["pads"][1] + attrs["pads"][-2] - attrs["kernel_shape"][-2])/attrs["strides"][-2] +1))
-                tmp_shape.append(math.floor((input_data1.shape[-1] + attrs["pads"][2] + attrs["pads"][-1] - attrs["kernel_shape"][-1])/attrs["strides"][-1] +1))
+                tmp_shape.append(math.floor((input_data1.shape[-3] + attrs['pads'][0] + attrs['pads'][-3] - attrs['kernel_shape'][-3])/attrs['strides'][-3] +1))
+                tmp_shape.append(math.floor((input_data1.shape[-2] + attrs['pads'][1] + attrs['pads'][-2] - attrs['kernel_shape'][-2])/attrs['strides'][-2] +1))
+                tmp_shape.append(math.floor((input_data1.shape[-1] + attrs['pads'][2] + attrs['pads'][-1] - attrs['kernel_shape'][-1])/attrs['strides'][-1] +1))
         else:
             raise(ValueError)
 
@@ -173,24 +173,24 @@ class GlobalAveragePool(BackendHandler):
 
     @classmethod
     def get_param_type_name(cls):
-        return "GlobalAveragePoolOpParam"
+        return 'GlobalAveragePoolOpParam'
 
 
     @classmethod
     def get_c_op_file_name(cls):
-        return ["globalaveragepool.c"]
+        return ['globalaveragepool.c']
 
 
     @classmethod
     def get_c_op_include_header(cls):
-        return ["math.h", "float.h"]
+        return ['math.h', 'float.h']
     
 
     @classmethod
     @BackendHandler.dec_generate_once()
     def get_c_param_type(cls):
         TEMPLATE_STRUCT = cleandoc(
-            """
+            '''
             typedef struct {{
                 char* name;
                 int   kernel_shape[2];
@@ -198,7 +198,7 @@ class GlobalAveragePool(BackendHandler):
                 int   storage_order;
                 int   strides[4];
             }} GlobalAveragePoolOpParam;
-            """
+            '''
         )
         mapping = {}
 
@@ -206,26 +206,26 @@ class GlobalAveragePool(BackendHandler):
 
 
     def generate_c_code(self, **kwargs):
-        res =""
-        res += "\n".join([c_helper.generate_local_include(h) for h in self.get_c_op_include_header()])
-        res +="\n\n"
+        res =''
+        res += '\n'.join([c_helper.generate_local_include(h) for h in self.get_c_op_include_header()])
+        res +='\n\n'
 
         # param type
         res += self.get_c_param_type()
-        res +="\n\n"
+        res +='\n\n'
 
         ndim = self.output_tensor_ndims[0]
         if (ndim != 3 and ndim != 4 and ndim != 5):
             raise ValueError()
 
-        kernel_shape = self.attrs["kernel_shape"]
-        pads = self.attrs["pads"]
-        storage_order = self.attrs["storage_order"]
-        strides = self.attrs["strides"]
-        count_include_pad = self.attrs["count_include_pad"]
+        kernel_shape = self.attrs['kernel_shape']
+        pads = self.attrs['pads']
+        storage_order = self.attrs['storage_order']
+        strides = self.attrs['strides']
+        count_include_pad = self.attrs['count_include_pad']
 
         if (ndim == 3):
-            TemplateStatements = """
+            TemplateStatements = '''
                 int  X_n = {X_d0};
                 int  X_c = {X_d1};
                 int  X_w = {X_d2};
@@ -269,24 +269,24 @@ class GlobalAveragePool(BackendHandler):
                         }}
                     }}
                 }}
-            """
+            '''
             mapping = {}
-            mapping.update({"X_d0": self.input_tensor_shapes[0][0]})
-            mapping.update({"X_d1": self.input_tensor_shapes[0][1]})
-            mapping.update({"X_d2": self.input_tensor_shapes[0][2]})
-            mapping.update({"Y_d0": self.output_tensor_shapes[0][0]})
-            mapping.update({"Y_d1": self.output_tensor_shapes[0][1]})
-            mapping.update({"Y_d2": self.output_tensor_shapes[0][2]})
-            mapping.update({"kernel_shape_w": kernel_shape[0]})
-            mapping.update({"pad_w_begin": pads[0]})
-            mapping.update({"pad_w_end":   pads[1]})
-            mapping.update({"stride_w": strides[0]})
-            mapping.update({"storage_order": storage_order})
-            mapping.update({"count_include_pad": count_include_pad})
-            mapping.update({"t": data_type.np2c(self.output_tensor_dtypes[0])})
+            mapping.update({'X_d0': self.input_tensor_shapes[0][0]})
+            mapping.update({'X_d1': self.input_tensor_shapes[0][1]})
+            mapping.update({'X_d2': self.input_tensor_shapes[0][2]})
+            mapping.update({'Y_d0': self.output_tensor_shapes[0][0]})
+            mapping.update({'Y_d1': self.output_tensor_shapes[0][1]})
+            mapping.update({'Y_d2': self.output_tensor_shapes[0][2]})
+            mapping.update({'kernel_shape_w': kernel_shape[0]})
+            mapping.update({'pad_w_begin': pads[0]})
+            mapping.update({'pad_w_end':   pads[1]})
+            mapping.update({'stride_w': strides[0]})
+            mapping.update({'storage_order': storage_order})
+            mapping.update({'count_include_pad': count_include_pad})
+            mapping.update({'t': data_type.np2c(self.output_tensor_dtypes[0])})
 
         elif (ndim == 4):
-            TemplateStatements = """
+            TemplateStatements = '''
                 int  X_n = {X_d0};
                 int  X_c = {X_d1};
                 int  X_h = {X_d2};
@@ -385,30 +385,30 @@ class GlobalAveragePool(BackendHandler):
                         }}
                     }}
                 }}
-            """
+            '''
             mapping = {}
-            mapping.update({"X_d0": self.input_tensor_shapes[0][0]})
-            mapping.update({"X_d1": self.input_tensor_shapes[0][1]})
-            mapping.update({"X_d2": self.input_tensor_shapes[0][2]})
-            mapping.update({"X_d3": self.input_tensor_shapes[0][3]})
-            mapping.update({"Y_d0": self.output_tensor_shapes[0][0]})
-            mapping.update({"Y_d1": self.output_tensor_shapes[0][1]})
-            mapping.update({"Y_d2": self.output_tensor_shapes[0][2]})
-            mapping.update({"Y_d3": self.output_tensor_shapes[0][3]})
-            mapping.update({"kernel_shape_h": kernel_shape[0]})
-            mapping.update({"kernel_shape_w": kernel_shape[1]})
-            mapping.update({"pad_h_begin": pads[0]})
-            mapping.update({"pad_h_end":   pads[2]})
-            mapping.update({"pad_w_begin": pads[1]})
-            mapping.update({"pad_w_end":   pads[3]})
-            mapping.update({"stride_h": strides[0]})
-            mapping.update({"stride_w": strides[1]})
-            mapping.update({"storage_order": storage_order})
-            mapping.update({"count_include_pad": count_include_pad})
-            mapping.update({"t": data_type.np2c(self.output_tensor_dtypes[0])})
+            mapping.update({'X_d0': self.input_tensor_shapes[0][0]})
+            mapping.update({'X_d1': self.input_tensor_shapes[0][1]})
+            mapping.update({'X_d2': self.input_tensor_shapes[0][2]})
+            mapping.update({'X_d3': self.input_tensor_shapes[0][3]})
+            mapping.update({'Y_d0': self.output_tensor_shapes[0][0]})
+            mapping.update({'Y_d1': self.output_tensor_shapes[0][1]})
+            mapping.update({'Y_d2': self.output_tensor_shapes[0][2]})
+            mapping.update({'Y_d3': self.output_tensor_shapes[0][3]})
+            mapping.update({'kernel_shape_h': kernel_shape[0]})
+            mapping.update({'kernel_shape_w': kernel_shape[1]})
+            mapping.update({'pad_h_begin': pads[0]})
+            mapping.update({'pad_h_end':   pads[2]})
+            mapping.update({'pad_w_begin': pads[1]})
+            mapping.update({'pad_w_end':   pads[3]})
+            mapping.update({'stride_h': strides[0]})
+            mapping.update({'stride_w': strides[1]})
+            mapping.update({'storage_order': storage_order})
+            mapping.update({'count_include_pad': count_include_pad})
+            mapping.update({'t': data_type.np2c(self.output_tensor_dtypes[0])})
 
         elif (ndim == 5):
-            TemplateStatements = """
+            TemplateStatements = '''
                 int  X_n = {X_d0};
                 int  X_c = {X_d1};
                 int  X_d = {X_d2};
@@ -482,86 +482,86 @@ class GlobalAveragePool(BackendHandler):
                         }}
                     }}
                 }}
-            """
+            '''
             mapping = {}
-            mapping.update({"X_d0": self.input_tensor_shapes[0][0]})
-            mapping.update({"X_d1": self.input_tensor_shapes[0][1]})
-            mapping.update({"X_d2": self.input_tensor_shapes[0][2]})
-            mapping.update({"X_d3": self.input_tensor_shapes[0][3]})
-            mapping.update({"X_d4": self.input_tensor_shapes[0][4]})
-            mapping.update({"Y_d0": self.output_tensor_shapes[0][0]})
-            mapping.update({"Y_d1": self.output_tensor_shapes[0][1]})
-            mapping.update({"Y_d2": self.output_tensor_shapes[0][2]})
-            mapping.update({"Y_d3": self.output_tensor_shapes[0][3]})
-            mapping.update({"Y_d4": self.output_tensor_shapes[0][4]})
-            mapping.update({"kernel_shape_d": kernel_shape[0]})
-            mapping.update({"kernel_shape_h": kernel_shape[1]})
-            mapping.update({"kernel_shape_w": kernel_shape[2]})
-            mapping.update({"pad_d_begin": pads[0]})
-            mapping.update({"pad_d_end":   pads[3]})
-            mapping.update({"pad_h_begin": pads[1]})
-            mapping.update({"pad_h_end":   pads[4]})
-            mapping.update({"pad_w_begin": pads[2]})
-            mapping.update({"pad_w_end":   pads[5]})
-            mapping.update({"stride_d": strides[0]})
-            mapping.update({"stride_h": strides[1]})
-            mapping.update({"stride_w": strides[2]})
-            mapping.update({"storage_order": storage_order})
-            mapping.update({"count_include_pad": count_include_pad})
-            mapping.update({"t": data_type.np2c(self.output_tensor_dtypes[0])})
+            mapping.update({'X_d0': self.input_tensor_shapes[0][0]})
+            mapping.update({'X_d1': self.input_tensor_shapes[0][1]})
+            mapping.update({'X_d2': self.input_tensor_shapes[0][2]})
+            mapping.update({'X_d3': self.input_tensor_shapes[0][3]})
+            mapping.update({'X_d4': self.input_tensor_shapes[0][4]})
+            mapping.update({'Y_d0': self.output_tensor_shapes[0][0]})
+            mapping.update({'Y_d1': self.output_tensor_shapes[0][1]})
+            mapping.update({'Y_d2': self.output_tensor_shapes[0][2]})
+            mapping.update({'Y_d3': self.output_tensor_shapes[0][3]})
+            mapping.update({'Y_d4': self.output_tensor_shapes[0][4]})
+            mapping.update({'kernel_shape_d': kernel_shape[0]})
+            mapping.update({'kernel_shape_h': kernel_shape[1]})
+            mapping.update({'kernel_shape_w': kernel_shape[2]})
+            mapping.update({'pad_d_begin': pads[0]})
+            mapping.update({'pad_d_end':   pads[3]})
+            mapping.update({'pad_h_begin': pads[1]})
+            mapping.update({'pad_h_end':   pads[4]})
+            mapping.update({'pad_w_begin': pads[2]})
+            mapping.update({'pad_w_end':   pads[5]})
+            mapping.update({'stride_d': strides[0]})
+            mapping.update({'stride_h': strides[1]})
+            mapping.update({'stride_w': strides[2]})
+            mapping.update({'storage_order': storage_order})
+            mapping.update({'count_include_pad': count_include_pad})
+            mapping.update({'t': data_type.np2c(self.output_tensor_dtypes[0])})
 
         # 3        
-        TemplateFunction = cleandoc("""
+        TemplateFunction = cleandoc('''
         void {op_func_name}(void *op_param, {t} X{dims_X}, {t} Y{dims}, void *inputs_params, void* outputs_params) {{
             {statements}
         }}
-        """)
+        ''')
 
         mappingf = {}
-        mappingf.update({"op_func_name": self.get_func_name()})
-        mappingf.update({"X": self.input_tensor_names[0]})
-        mappingf.update({"dims_X": c_helper.generate_dim_bracket(self.input_tensor_shapes[0])}) 
-        mappingf.update({"Y": self.output_tensor_names[0]})
-        mappingf.update({"dims": c_helper.generate_dim_bracket(self.output_tensor_shapes[0])}) 
-        mappingf.update({"t": data_type.np2c(self.output_tensor_dtypes[0])})
-        mappingf.update({"statements": TemplateStatements.format(**mapping)})
-        res += "\n\n"
+        mappingf.update({'op_func_name': self.get_func_name()})
+        mappingf.update({'X': self.input_tensor_names[0]})
+        mappingf.update({'dims_X': c_helper.generate_dim_bracket(self.input_tensor_shapes[0])}) 
+        mappingf.update({'Y': self.output_tensor_names[0]})
+        mappingf.update({'dims': c_helper.generate_dim_bracket(self.output_tensor_shapes[0])}) 
+        mappingf.update({'t': data_type.np2c(self.output_tensor_dtypes[0])})
+        mappingf.update({'statements': TemplateStatements.format(**mapping)})
+        res += '\n\n'
         res += TemplateFunction.format(**mappingf)
 
         return res
 
 
     def gen_op_variables(self, node, node_num, **kwargs):
-        TemplateVariavbles = cleandoc("""
+        TemplateVariavbles = cleandoc('''
             int OpShapeNode{node_num}[] = {{{shape}}};
             int OutputShapeNode{node_num}[] = {{{shape}}};
-            """)
+            ''')
         ndim = self.output_tensor_ndims[0]
         shape = self.output_tensor_shapes[0]
         mapping = {}
-        mapping.update({"shape": ",".join(map(str,shape[:ndim]))})
-        mapping.update({"node_num": str(node_num)})
+        mapping.update({'shape': ','.join(map(str,shape[:ndim]))})
+        mapping.update({'node_num': str(node_num)})
 
         return TemplateVariavbles.format(**mapping)        
 
 
     def gen_init_func(self, node, node_num, indent=4, **kwargs):
 
-        TemplateInitFunc=cleandoc("""
+        TemplateInitFunc=cleandoc('''
         {indent}// define input & output
         {indent}Nodes[{node_num}].op_param = &{node_param_name};
         {indent}Nodes[{node_num}].outputs = &{output_val_name};
         {indent}Nodes[{node_num}].output_ndim = {ndim};
         {indent}Nodes[{node_num}].output_shape = OutputShapeNode{node_num};
-        """)
+        ''')
         
         mapping = {}
-        mapping.update({"node_param_name": node.node_param_name})
-        mapping.update({"node_num": str(node_num)})
-        mapping.update({"add_name": self.get_name()})
-        mapping.update({"ndim":str(self.output_tensor_ndims[0])})
-        mapping.update({"output_val_name": self.output_tensor_names[0]})
-        mapping.update({"indent":" " * indent})
+        mapping.update({'node_param_name': node.node_param_name})
+        mapping.update({'node_num': str(node_num)})
+        mapping.update({'add_name': self.get_name()})
+        mapping.update({'ndim':str(self.output_tensor_ndims[0])})
+        mapping.update({'output_val_name': self.output_tensor_names[0]})
+        mapping.update({'indent':' ' * indent})
 
         return TemplateInitFunc.format(**mapping)
 

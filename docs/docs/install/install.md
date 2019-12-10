@@ -11,12 +11,13 @@ $ pip3 install [インストールするpython3ライブラリ]
 
 インストールするpython3ライブラリ項目
 ```
- onnx==1.4.1
- tf2onnx==1.4.1
+ onnx==1.5.0
+ tf2onnx==1.5.1
+ tensorflow>=1.13, <2.0
  Keras
- tensorflow
  numpy
  pillow
+ opencv-python
 ```
 
 ## git clone

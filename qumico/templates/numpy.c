@@ -74,7 +74,21 @@ int load_from_numpy(void *dp, const char *numpy_fname, int size, NUMPY_HEADER *h
          return QMC_FREAD_ERR;
       }
       break;
-   case QMC_UINT8: //fall through
+  case QMC_INT32:
+      assert(sizeof(int)==4);
+      ret = fread(dp, 4, size, fp);
+      if (ret != size) {
+         return QMC_FREAD_ERR;
+      }
+      break;
+  case QMC_INT64:
+      assert(sizeof(long long)==8);
+      ret = fread(dp, 8, size, fp);
+      if (ret != size) {
+         return QMC_FREAD_ERR;
+      }
+      break;
+  case QMC_UINT8: //fall through
    case QMC_FIX8:
       ret =  fread(dp, 1, size, fp);
       if (ret != size) {
@@ -201,6 +215,10 @@ int np_parse_header_dic(char *buf, NUMPY_HEADER *hp)
       cp = strtok(NULL, delimiter);
       if(strstr(cp, "'<f4'")!=NULL) {
         hp->descr = QMC_FLOAT32;
+      } else if(strstr(cp, "'<i4'")!=NULL) {
+          hp->descr = QMC_INT32;
+      } else if(strstr(cp, "'<i8'")!=NULL) {
+          hp->descr = QMC_INT64;
       } else if(strstr(cp, "'|u1'")!=NULL) {
          hp->descr = QMC_UINT8;
       } else if(strstr(cp, "'<i2'")!=NULL) {
@@ -266,6 +284,9 @@ void np_print_heaer_info(const NUMPY_HEADER *hp)
    case QMC_INT32:
     printf("int32");
     break;
+   case QMC_INT64:
+    printf("int64");
+    break;
    case  QMC_FLOAT32:
     printf("float32");
     break;
@@ -305,6 +326,8 @@ int save_to_numpy(void *dp, const char *numpy_fname, NUMPY_HEADER *hp)
   int len;
   char *descr;
   char *type_float = "<f4";
+  char *type_int32 = "<i4";
+  char *type_int64 = "<i8";
   char *type_fix16 = "<i2";
   char *type_fix8 = "|i1";
   int size_from_shape;
@@ -354,7 +377,13 @@ int save_to_numpy(void *dp, const char *numpy_fname, NUMPY_HEADER *hp)
    if(hp->descr == QMC_FLOAT32) {
     descr = type_float;
     data_size = 4;
-  } else if(hp->descr == QMC_FIX16) {
+   } else if(hp->descr ==QMC_INT32) {
+     descr = type_int32;
+     data_size = 4;
+   } else if(hp->descr ==QMC_INT64) {
+       descr = type_int64;
+       data_size = 8;
+   } else if(hp->descr == QMC_FIX16) {
     descr = type_fix16;
     data_size = 2;
   } else if(hp->descr == QMC_FIX8) {

@@ -19,7 +19,7 @@ class QumicoNode(pb_wrapper.OnnxNode):
     GEN_NODE_PARAM_NAME = 0
     VI_PREFIX = "vi_" # ValueInfo Name Prefix
 
-    def __init__(self, node, inputs, outputs_info=None, device=None):
+    def __init__(self, node, inputs, opset, outputs_info=None, device=None):
 
         super(QumicoNode, self).__init__(node)
         if self._name == "":
@@ -35,7 +35,7 @@ class QumicoNode(pb_wrapper.OnnxNode):
 
         self._input_tensor = namedtupledict("input_tensor", field_values.keys())(**field_values)
         self.outputs_info =outputs_info
-        op = self._onnx_node_to_qumico_op(self, tensor_dict=inputs, device=device)
+        op = self._onnx_node_to_qumico_op(self, tensor_dict=inputs, opset=opset, device=device)
         self._op = op
         self._output_tensor = op.output_tensor
         self._node_param_name = "NodeParam" + str(self.GEN_NODE_PARAM_NAME)
@@ -164,8 +164,8 @@ class QumicoNode(pb_wrapper.OnnxNode):
                                   node,
                                   tensor_dict,
                                   device,
+                                  opset,
                                   handlers=None,
-                                  opset= [make_opsetid(defs.ONNX_DOMAIN, SUPPORT_ONNX_OPSET)],
                                   strict=True):
         """
         Convert onnx node to tensorflow op.

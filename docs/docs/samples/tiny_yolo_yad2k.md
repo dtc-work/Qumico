@@ -62,6 +62,8 @@ python3 tiny_yolo_v2_yad2k_infer.py
 
 このように表示されば、正常に終了しています。
 ```
+person 0.73274153 (213, 16) (445, 357)
+horse 0.5306422 (53, 146) (217, 350)
 finish
 ```
 
@@ -79,6 +81,7 @@ python3 gen_c_optimize.py
 Cソースを生成しました。出力先: out_c_optimize
 ```
 out_c_optimizeディレクトリに、次のファイルが作成できていればCソースへの変換は成功です。
+
 - includeディレクトリ
 - initializersディレクトリ
 - libディレクトリ

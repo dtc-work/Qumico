@@ -109,7 +109,7 @@ class TestQumico (unittest.TestCase):
     def test_conv_onnx_to_c_with_onnx(self):
         self.input_path = os.path.join(self.input_path, "onnx")
         onnx_file = os.path.join(self.input_path, self.input_file_name + ".onnx")
-        self.qumico_object.conv_onnx_to_c(onnx_path=onnx_file, out_c_path=self.output_path)
+        self.qumico_object.conv_onnx_to_c(onnx_path=onnx_file, out_c_path=self.output_path, compile=False)
 
         file_list = ["qumico.c", "qumico.h", "qumico_type.h"]
         # file_list = ["qumico.c", "qumico.so", "qumico.h", "qumico_type.h"]

@@ -1,11 +1,16 @@
 # Tiny YOLOv2
 Tiny YOLOv2を使用して物体識別を行います。
 
+
 ## はじめに
 Qumicoをgit cloneしたディレクトリの samples/tiny_yolo_v2/tensorflow へ移動してください。
 ```
 cd Qumcio/samples/tiny_yolo_v2/tensorflow
 ```
+
+!!!warning
+TensorFlowのONNXの出力部分にバグがあるたため、Tiny YOLOv2のサンプルを動かすためにはGPU環境が必要です。
+
 
 ## 学習
 VOC2007のデータを利用して学習を行います。
@@ -15,7 +20,7 @@ VOC2007のデータを利用して学習を行います。
 tiny_yolo2_train.py の root_path, data_list_path, label_list_path の設定で学習データを格納したフォルダを設定します。　　
 
 (例)
-```
+```python
     # 学習データルートパス(絶対パス)を設定する
     # root_path = ""
     # 画像ファイルフォルダ

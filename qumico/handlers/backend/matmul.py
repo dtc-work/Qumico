@@ -12,7 +12,7 @@ from qumico.handlers.handler import onnx_op
 from qumico.common import c_helper
 from qumico.common import data_type
 
-@onnx_op("MatMul")
+@onnx_op('MatMul')
 
 class MatMul(BackendHandler):
 
@@ -34,8 +34,8 @@ class MatMul(BackendHandler):
 #        input_data1 = input_data1.reshape(input_data1_new_shape)
 #        input_data2 = input_data2.reshape(input_data2_new_shape)
         inputs_dict = OrderedDict()
-        inputs_dict.update({"A": input_data1})
-        inputs_dict.update({"B": input_data2})
+        inputs_dict.update({'A': input_data1})
+        inputs_dict.update({'B': input_data2})
 
         tmp_output_shape = []
         max_dim = max(input_data1.ndim, input_data2.ndim) 
@@ -55,18 +55,18 @@ class MatMul(BackendHandler):
         outputs_shape = tuple(tmp_output_shape)
         outputs_dtype = input_data1.dtype  if input_data1.dtype  == input_data2.dtype else np.double
         outputs_dict = {node.valid_var_name(node.outputs[0]): np.ones(shape=outputs_shape, dtype=outputs_dtype)}
-        output_tensor = namedtupledict("output_tensor", outputs_dict.keys())(**outputs_dict)
+        output_tensor = namedtupledict('output_tensor', outputs_dict.keys())(**outputs_dict)
         return cls(node, input_tensor=node.input_tensor, output_tensor=output_tensor, attrs=node.attrs)
 
 
     @classmethod
     def get_param_type_name(cls):
-        return "MatMulOpParam"
+        return 'MatMulOpParam'
 
 
     @classmethod
     def get_c_op_file_name(cls):
-        return ["matmul.c"]
+        return ['matmul.c']
 
 
     @classmethod
@@ -78,11 +78,11 @@ class MatMul(BackendHandler):
     @BackendHandler.dec_generate_once()
     def get_c_param_type(cls):
         TEMPLATE_STRUCT = cleandoc(
-            """
+            '''
             typedef struct {{
                 char* name;
             }} MatMulOpParam;
-            """
+            '''
         )
         mapping = {}
 
@@ -90,13 +90,13 @@ class MatMul(BackendHandler):
 
 
     def generate_c_code(self, **kwargs):
-        res =""
-        res += "\n".join([c_helper.generate_local_include(h) for h in self.get_c_op_include_header()])
-        res +="\n\n"
+        res =''
+        res += '\n'.join([c_helper.generate_local_include(h) for h in self.get_c_op_include_header()])
+        res +='\n\n'
 
         # param type
         res += self.get_c_param_type()
-        res +="\n\n"
+        res +='\n\n'
         
         input_shapes = []
         input_shapes.append(self.input_tensor_shapes[0])
@@ -122,7 +122,7 @@ class MatMul(BackendHandler):
 
         ndim = self.output_tensor_ndims[0]
 
-        TemplateStatements = """
+        TemplateStatements = '''
             int   A_h = {A_d0};
             int   A_i = {A_d1};
             int   A_j = {A_d2};
@@ -167,67 +167,67 @@ class MatMul(BackendHandler):
                     }}
                 }}
             }}
-        """
+        '''
 
         mapping = {}
-        mapping.update({"A_d0": input_mod_shapes[0][0]})
-        mapping.update({"A_d1": input_mod_shapes[0][1]})
-        mapping.update({"A_d2": input_mod_shapes[0][2]})
-        mapping.update({"A_d3": input_mod_shapes[0][3]})
-        mapping.update({"A_d4": input_mod_shapes[0][4]})
-        mapping.update({"B_d0": input_mod_shapes[1][0]})
-        mapping.update({"B_d1": input_mod_shapes[1][1]})
-        mapping.update({"B_d2": input_mod_shapes[1][2]})
-        mapping.update({"B_d3": input_mod_shapes[1][3]})
-        mapping.update({"B_d4": input_mod_shapes[1][4]})
-        mapping.update({"Y_d0": outputs_shape[0]})
-        mapping.update({"Y_d1": outputs_shape[1]})
-        mapping.update({"Y_d2": outputs_shape[2]})
-        mapping.update({"Y_d3": outputs_shape[3]})
-        mapping.update({"Y_d4": outputs_shape[4]})
-        mapping.update({"t": data_type.np2c(self.output_tensor_dtypes[0])})
+        mapping.update({'A_d0': input_mod_shapes[0][0]})
+        mapping.update({'A_d1': input_mod_shapes[0][1]})
+        mapping.update({'A_d2': input_mod_shapes[0][2]})
+        mapping.update({'A_d3': input_mod_shapes[0][3]})
+        mapping.update({'A_d4': input_mod_shapes[0][4]})
+        mapping.update({'B_d0': input_mod_shapes[1][0]})
+        mapping.update({'B_d1': input_mod_shapes[1][1]})
+        mapping.update({'B_d2': input_mod_shapes[1][2]})
+        mapping.update({'B_d3': input_mod_shapes[1][3]})
+        mapping.update({'B_d4': input_mod_shapes[1][4]})
+        mapping.update({'Y_d0': outputs_shape[0]})
+        mapping.update({'Y_d1': outputs_shape[1]})
+        mapping.update({'Y_d2': outputs_shape[2]})
+        mapping.update({'Y_d3': outputs_shape[3]})
+        mapping.update({'Y_d4': outputs_shape[4]})
+        mapping.update({'t': data_type.np2c(self.output_tensor_dtypes[0])})
 
 
         # 3        
-        TemplateFunction = cleandoc("""
+        TemplateFunction = cleandoc('''
         void {op_func_name}(void *op_param, {t} A{dims_A}, {t} B{dims_B}, {t} Y{dims}, void *inputs_params, void* outputs_params)
         {{
             {statements}
         }}
-        """)
+        ''')
 
         mappingf = {}
-        mappingf.update({"op_func_name": self.get_func_name()})
-        mappingf.update({"A": self.input_tensor_names[0]})
-        mappingf.update({"dims_A": c_helper.generate_dim_bracket(input_shapes[0])}) 
-        mappingf.update({"B": self.input_tensor_names[1]})
-        mappingf.update({"dims_B": c_helper.generate_dim_bracket(input_shapes[1])}) 
-        mappingf.update({"Y": self.output_tensor_names[0]})
-        mappingf.update({"dims": c_helper.generate_dim_bracket(self.output_tensor_shapes[0])}) 
-        mappingf.update({"t": data_type.np2c(self.output_tensor_dtypes[0])})
-        mappingf.update({"statements": TemplateStatements.format(**mapping)})
-        res += "\n\n"
+        mappingf.update({'op_func_name': self.get_func_name()})
+        mappingf.update({'A': self.input_tensor_names[0]})
+        mappingf.update({'dims_A': c_helper.generate_dim_bracket(input_shapes[0])}) 
+        mappingf.update({'B': self.input_tensor_names[1]})
+        mappingf.update({'dims_B': c_helper.generate_dim_bracket(input_shapes[1])}) 
+        mappingf.update({'Y': self.output_tensor_names[0]})
+        mappingf.update({'dims': c_helper.generate_dim_bracket(self.output_tensor_shapes[0])}) 
+        mappingf.update({'t': data_type.np2c(self.output_tensor_dtypes[0])})
+        mappingf.update({'statements': TemplateStatements.format(**mapping)})
+        res += '\n\n'
         res += TemplateFunction.format(**mappingf)
 
         return res
 
 
     def gen_op_variables(self, node, node_num, **kwargs):
-        TemplateVariavbles = cleandoc("""
+        TemplateVariavbles = cleandoc('''
             int OpShapeNode{node_num}[] = {{{shape}}};
             int OutputShapeNode{node_num}[] = {{{shape}}};
-            """)
+            ''')
         ndim =  self.output_tensor_ndims[0]
         shape = self.output_tensor_shapes[0]
         mapping = {}
-        mapping.update({"shape": ",".join(map(str,shape[:ndim]))})
-        mapping.update({"node_num": str(node_num)})
+        mapping.update({'shape': ','.join(map(str,shape[:ndim]))})
+        mapping.update({'node_num': str(node_num)})
 
         return TemplateVariavbles.format(**mapping)        
 
 
     def gen_init_func(self, node, node_num, indent=4, **kwargs):
-#         TemplateInitFunc=cleandoc("""
+#         TemplateInitFunc=cleandoc('''
 #         {indent}// define input & output
 #         {indent}{node_param_name}.ndim = {ndim};
 #         {indent}{node_param_name}.shape= OpShapeNode{node_num};
@@ -236,30 +236,30 @@ class MatMul(BackendHandler):
 #         {indent}Nodes[{node_num}].outputs = &OutputNode{node_num};
 #         {indent}Nodes[{node_num}].output_ndim = {ndim};
 #         {indent}Nodes[{node_num}].output_shape = OutputShapeNode{node_num};
-#         """)
+#         ''')
 
-        TemplateInitFunc=cleandoc("""
+        TemplateInitFunc=cleandoc('''
         {indent}// define input & output
         {indent}Nodes[{node_num}].op_param = &{node_param_name};
         {indent}Nodes[{node_num}].outputs = &{output_val_name};
         {indent}Nodes[{node_num}].output_ndim = {ndim};
         {indent}Nodes[{node_num}].output_shape = OutputShapeNode{node_num};
-        """)
+        ''')
         
         mapping = {}
-        mapping.update({"node_param_name": node.node_param_name})
-        mapping.update({"node_num": str(node_num)})
-        mapping.update({"add_name": self.get_name()})
-        mapping.update({"ndim":self.output_tensor_ndims[0]})
-        mapping.update({"output_val_name": self.output_tensor_names[0]})
-        mapping.update({"indent":" " * indent})
+        mapping.update({'node_param_name': node.node_param_name})
+        mapping.update({'node_num': str(node_num)})
+        mapping.update({'add_name': self.get_name()})
+        mapping.update({'ndim':self.output_tensor_ndims[0]})
+        mapping.update({'output_val_name': self.output_tensor_names[0]})
+        mapping.update({'indent':' ' * indent})
 
         return TemplateInitFunc.format(**mapping)
 
 
     @classmethod
     def need_c_headers(cls):
-        return ["string.h"]
+        return ['string.h']
 
     
     @classmethod

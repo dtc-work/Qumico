@@ -15,6 +15,7 @@ export_root(defalut: out_c)
 """
 
 STD_INCLUDES = ["stdio.h","string.h", "stdbool.h"]
+QUANT_INCLUDES = ["stdint.h","inttypes.h"]
 ADD_INCLUDES = ["qumico.h", "qumico_type.h"]
 
 QUMICO_MAIN = "qumico"
@@ -28,11 +29,8 @@ QUMICO_INCLUDE_PATH = path.join(QUMICO_EXPORT_ROOT_PATH, QUMICO_INCLUDE)
 QUMICO_LIB_PATH = path.join(QUMICO_EXPORT_ROOT_PATH, QUMICO_LIB)
 QUMICO_TEMPLATE_PATH = path.join(QumicoRootPath, QUMICO_TEMPLATE)
 
-SUPPORT_ONNX_OPSET = 8
+SUPPORT_ONNX_OPSET = 10
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 QUMICO_VERSION = __version__
 
-# from . import backend
-# from . import frontend
-# from . import Qumico

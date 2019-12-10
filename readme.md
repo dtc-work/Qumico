@@ -14,6 +14,7 @@ IoT、ロボット、AI家電等、エッジ機器でディープラーニング
 3. SoCやカスタムCPUといった業界標準フレームワークが対応していないボードでも、エッジAIを動作させることが可能
 4. 業界標準のONNXフォーマットから組込用Cソースを生成、組込機器でディープラーニング動作
 5. C言語をベースに、様々な最適化を実施可能
+6. Google Cloud AutoMLに対応。TensorFlow LiteフォーマットからのC言語生成をサポート
 
 
 ## インストール方法
@@ -31,6 +32,16 @@ IoT、ロボット、AI家電等、エッジ機器でディープラーニング
 - [tests](/tests)：Qumicoテスト
 
 - [tools](/tools)：Qumico周辺ツール
+
+
+## サンプル
+- [mlp](/docs/docs/samples/mlp.md)：MultiLayer Perceptronサンプル
+- [conv](/docs/docs/samples/conv.md)：Convolutionサンプル
+- [vgg](/docs/docs/samples/vgg16.md)：VGG16サンプルd
+- [tiny_yolo_v2](/docs/docs/samples/tiny_yolo.md)：tiny_yolo_v2サンプル(要CUDA, モデル学習あり)
+- [tiny_yolo_v2_yad2k](/docs/docs/samples/tiny_yolo_yad2k.md)：tiny_yolo_v2_yad2k(推論のみ, RapsberryPi向け)
+- [mobilenet](/docs/docs/samples/mobilenet.md)：Mobilenet V1(量子化済み, TFLite形式)
+- [automl_dogcat](/docs/docs/samples/automl_dogcat.md)：AutoMLを利用した識別
 
 
 ## レファレンス

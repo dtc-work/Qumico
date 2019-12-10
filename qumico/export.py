@@ -76,11 +76,13 @@ class Export:
 
         shutil.copyfile(_from, _to)
 
-        with open(_to, 'r') as original_file:
-            with open('tmp.txt', 'w') as temp_file:
+        with open(_to, 'r', encoding='utf-8') as original_file:
+            with open('tmp.txt', 'w', encoding='utf-8') as temp_file:
                 temp_file.write(self.copyright_date_version())
                 temp_file.write(original_file.read())
-                os.rename('tmp.txt', _to)
+
+        os.remove(_to)
+        os.rename('tmp.txt', _to)
 
     # include/ops.h
     def export_ops_header(self, device=None):
@@ -96,7 +98,7 @@ class Export:
     def export_initializers(self, content): # content is OrderedDict
 
         if self._export_type == ExportType.C:
-            with open(self._export_initializers_path, "w") as fout:
+            with open(self._export_initializers_path, "w", encoding='utf-8') as fout:
                 fout.write(self.copyright_date_version())
                 fout.write(content)
 
@@ -107,13 +109,13 @@ class Export:
 
     # lib/Constant.c, GEMM.c .etc
     def export_lib_ops(self, op_name, content):
-        with open(path.join(self._export_lib_path, op_name.lower() + ".c"), "w") as fout:
+        with open(path.join(self._export_lib_path, op_name.lower() + ".c"), "w", encoding='utf-8') as fout:
             fout.write(self.copyright_date_version())
             fout.write(content)
 
     # qumico.c
     def export_qumico(self, content):
-        with open(self._export_qumico_path, "w") as fout:
+        with open(self._export_qumico_path, "w", encoding='utf-8') as fout:
             fout.write(self.copyright_date_version())
             fout.write(content)
 
@@ -124,7 +126,7 @@ class Export:
         qumico_dir = os.path.dirname(os.path.abspath(__file__))
         license_dir = os.path.join(os.path.dirname(qumico_dir), "LICENSE")
 
-        with open(license_dir, "r") as licence_file:
+        with open(license_dir, "r", encoding='utf-8') as licence_file:
             license_content = licence_file.read()
             licence_file.close()
 

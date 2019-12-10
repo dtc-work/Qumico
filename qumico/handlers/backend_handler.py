@@ -30,6 +30,7 @@ class BackendHandler(Handler):
     NAME_GEN = defaultdict(int)
 
     PRAGMA_OMP = "#pragma omp parallel for"
+    Quantizable =False
 
     TF_FUNC = None
     def __init__(self,

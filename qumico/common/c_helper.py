@@ -75,12 +75,20 @@ def generate_ndim_for_loop(nparray, indent=4,gen=None, res=None, pragma=False):
 
     if nparray.ndim == 1:
         val = next(gen)
-        TemplateLoop = cleandoc("""
-        {indent}for(int {val}=0;{val}<{limit};{val}++){{
-        {indent}    {statements}
-        {indent}}}
-        """)
-        
+        if pragma:
+            TemplateLoop = cleandoc("""
+            {indent}[pragma]
+            {indent}for(int {val}=0;{val}<{limit};{val}++){{
+            {indent}    {statements}
+            {indent}}}
+            """)
+        else:
+            TemplateLoop = cleandoc("""
+                       {indent}for(int {val}=0;{val}<{limit};{val}++){{
+                       {indent}    {statements}
+                       {indent}}}
+                       """)
+
         mapping = {"val": val, "limit": nparray.shape[0],
                    "indent": " " * (indent + 4), "statements": "[statements]"}
         res += TemplateLoop.format(**mapping) + "\n"

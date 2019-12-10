@@ -13,17 +13,17 @@ from qumico.common import c_helper
 from qumico.common import data_type
 
 
-@onnx_op("Squeeze")
+@onnx_op('Squeeze')
 class Squeeze(BackendHandler):
 
     @classmethod
     def instantiate(cls, node, **kwargs):
-        axes = node.attrs.get("axes")
+        axes = node.attrs.get('axes')
         input_data1 = node.input_tensor[0]
         outputs_shape = np.squeeze( input_data1, tuple(axes) ).shape
         outputs_dtype = input_data1.dtype
         outputs_dict = {node.valid_var_name(node.outputs[0]): np.ones(shape=outputs_shape, dtype=outputs_dtype)}
-        output_tensor = namedtupledict("output_tensor", outputs_dict.keys())(**outputs_dict)
+        output_tensor = namedtupledict('output_tensor', outputs_dict.keys())(**outputs_dict)
         return cls(node, input_tensor=node.input_tensor, 
                    output_tensor=output_tensor, attrs=node.attrs)
 
@@ -31,12 +31,12 @@ class Squeeze(BackendHandler):
 
     @classmethod
     def get_param_type_name(cls):
-        return "SqueezeOpParam"
+        return 'SqueezeOpParam'
 
 
     @classmethod
     def get_c_op_file_name(cls):
-        return ["squeeze.c"]
+        return ['squeeze.c']
 
 
     @classmethod
@@ -48,25 +48,25 @@ class Squeeze(BackendHandler):
     @BackendHandler.dec_generate_once()
     def get_c_param_type(cls):
         return cleandoc(
-            """
+            '''
             typedef struct {
                 char* name;
             } SqueezeOpParam;
-            """)
+            ''')
 
 
     def generate_c_code(self, **kwargs):
-        res =""
-        res += "\n".join([c_helper.generate_local_include(h) for h in self.get_c_op_include_header()])
-        res +="\n\n"
+        res =''
+        res += '\n'.join([c_helper.generate_local_include(h) for h in self.get_c_op_include_header()])
+        res +='\n\n'
 
         # param type
         res += self.get_c_param_type()
-        res +="\n\n"
+        res +='\n\n'
 
         # 1
         # 2
-        TemplateStatements = """
+        TemplateStatements = '''
             {t} *_data = ({t} *)data;
             {t} *_squeezed = ({t} *)squeezed;
 
@@ -86,65 +86,65 @@ class Squeeze(BackendHandler):
                     *(_squeezed +i) = ({t})0.0;
                 }}
             }}
-        """
+        '''
 
         mapping = {}
-        mapping.update({"t": data_type.np2c(self.output_tensor_dtypes[0])})
-        mapping.update({"data_elements": self.input_tensor[0].size})
-        mapping.update({"shape_elements": self.output_tensor[0].size})
+        mapping.update({'t': data_type.np2c(self.output_tensor_dtypes[0])})
+        mapping.update({'data_elements': self.input_tensor[0].size})
+        mapping.update({'shape_elements': self.output_tensor[0].size})
 
 
         # 3        
-        TemplateFunction = cleandoc("""
+        TemplateFunction = cleandoc('''
         void {op_func_name}(void *op_param, {t} data{dims_data}, {t} squeezed{dims_squeezed}, void *inputs_params, void* outputs_params) {{
             {statements}
         }}
-        """)
+        ''')
 
         mappingf = {}
-        mappingf.update({"op_func_name": self.get_func_name()})
-        mappingf.update({"dims_data": c_helper.generate_dim_bracket(self.input_tensor_shapes[0])}) 
-        mappingf.update({"dims_squeezed": c_helper.generate_dim_bracket(self.output_tensor_shapes[0])}) 
-        mappingf.update({"t": data_type.np2c(self.output_tensor_dtypes[0])})
-        mappingf.update({"statements": TemplateStatements.format(**mapping)})
-        res += "\n\n"
+        mappingf.update({'op_func_name': self.get_func_name()})
+        mappingf.update({'dims_data': c_helper.generate_dim_bracket(self.input_tensor_shapes[0])}) 
+        mappingf.update({'dims_squeezed': c_helper.generate_dim_bracket(self.output_tensor_shapes[0])}) 
+        mappingf.update({'t': data_type.np2c(self.output_tensor_dtypes[0])})
+        mappingf.update({'statements': TemplateStatements.format(**mapping)})
+        res += '\n\n'
         res += TemplateFunction.format(**mappingf)
 
         return res
 
 
     def gen_op_variables(self, node, node_num, **kwargs):
-        TemplateVariavbles = cleandoc("""
+        TemplateVariavbles = cleandoc('''
             int OpShapeNode{node_num}[] = {{{shape}}};
             int OutputShapeNode{node_num}[] = {{{shape}}};
-            """)
+            ''')
         ndim = self.output_tensor_ndims[0]
         shape = self.output_tensor_shapes[0]
 
         mapping = {}
-        mapping.update({"shape": ",".join(map(str,shape[:ndim]))})
-        mapping.update({"node_num": str(node_num)})
+        mapping.update({'shape': ','.join(map(str,shape[:ndim]))})
+        mapping.update({'node_num': str(node_num)})
 
         return TemplateVariavbles.format(**mapping)        
 
 
     def gen_init_func(self, node, node_num, indent=4, **kwargs):
 
-        TemplateInitFunc=cleandoc("""
+        TemplateInitFunc=cleandoc('''
         {indent}// define input & output
         {indent}Nodes[{node_num}].op_param = &{node_param_name};
         {indent}Nodes[{node_num}].outputs = &{output_val_name};
         {indent}Nodes[{node_num}].output_ndim = {ndim};
         {indent}Nodes[{node_num}].output_shape = OutputShapeNode{node_num};
-        """)
+        ''')
         
         mapping = {}
-        mapping.update({"node_param_name": node.node_param_name})
-        mapping.update({"node_num": str(node_num)})
-        mapping.update({"add_name": self.get_name()})
-        mapping.update({"ndim":str(self.output_tensor_ndims[0])})
-        mapping.update({"output_val_name": self.output_tensor_names[0]})
-        mapping.update({"indent":" " * indent})
+        mapping.update({'node_param_name': node.node_param_name})
+        mapping.update({'node_num': str(node_num)})
+        mapping.update({'add_name': self.get_name()})
+        mapping.update({'ndim':str(self.output_tensor_ndims[0])})
+        mapping.update({'output_val_name': self.output_tensor_names[0]})
+        mapping.update({'indent':' ' * indent})
 
         return TemplateInitFunc.format(**mapping)
 

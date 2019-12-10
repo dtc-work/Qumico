@@ -1,12 +1,3 @@
-
-# Qumicoは
-
-- **Qumico**は[ONNX](http://onnx.ai/)で学習済みのDLのデータをC言語として変換します。
-
-- [ONNX](http://onnx.ai/)は[Tenserflow](https://www.tensorflow.org/),[Keras](https://keras.io/),[Chairer](https://chainer.org/),他のMLツールで作られた各DLモデルをONNXのフォーマットに変換することができます。このため、**Qumico**は、多くのDLモデルをC言語に変換することが出来ます。
-
-- QumicoはONNXのDLモデルをより便利に**IoT環境**に乗せて対応できることを目指します。
-
 # 出力ファイル
 
 - Qumicoが生成するソースコードは、out_c/フォルダに出力されます。  
@@ -18,7 +9,6 @@
 - qumico.c
 - numpy.c  (必要に応じて作成)
 - qumico.so
-
 
 ## include/ フォルダ
 
@@ -42,13 +32,14 @@ DLモデルの各レイヤーで必要なオペレーション種別ごとに、
 - 関数名: "Op"+オペレーション種別+連番 (例: OpConv1)
 - 引数:
     - オペレーションのパラメータ構造体(void *op_param)
-    - 入力データ、重みデータ、バイアスデータ 等 (オペレータの入力引数については、ONNXのオペレータ仕様を参照してください。[https://github.com/onnx/onnx/blob/master/docs/Operators.md])
-    - 出力データ 等  (オペレータの出力引数については、ONNXのオペレータ仕様を参照してください。[https://github.com/onnx/onnx/blob/master/docs/Operators.md])
+    - 入力データ、重みデータ、バイアスデータ 等 
+    - 出力データ 等
     - 入力パラメータ: 将来の拡張用(void *input_params)
     - 出力パラメータ: 将来の拡張用(void *output_params)
 - 戻り値
  なし
 
+オペレータの引数については、ONNXのオペレータ仕様を参照してください。  [Operator Schemas](https://github.com/onnx/onnx/blob/master/docs/Operators.md)
 
 ## initializers/ フォルダ
 
@@ -92,7 +83,7 @@ DLモデルの重みデータのロードを行います。
  const char *path: 重みデータファイルのパス設定(将来の拡張用)
 - 戻り値:  
  0: 正常終了  
- 非0: 以上終了
+ 非0: 異常終了
 
 ### int run()
 

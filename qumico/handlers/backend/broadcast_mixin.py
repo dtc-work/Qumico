@@ -14,7 +14,7 @@ class BroadcastMixin:
             return y
 
         if not isinstance(x, tf.Tensor) or not isinstance(y, tf.Tensor):
-            raise ValueError("Targets for explicit broadcasting need to be Tensor.")
+            raise ValueError('Targets for explicit broadcasting need to be Tensor.')
 
         if axis is None:
             return y
@@ -35,10 +35,10 @@ class BroadcastMixin:
 
     @classmethod
     def limited_broadcast(cls, node, **kwargs):
-        tensor_dict = kwargs["tensor_dict"]
+        tensor_dict = kwargs['tensor_dict']
         x = tensor_dict[node.inputs[0]]
         y = tensor_dict[node.inputs[1]]
-        if node.attrs.get("broadcast") == 1:
-            y = cls.explicit_broadcast([x, y], node.attrs.get("axis", None))
+        if node.attrs.get('broadcast') == 1:
+            y = cls.explicit_broadcast([x, y], node.attrs.get('axis', None))
             return [cls.make_tensor_from_onnx_node(node, inputs=[x, y], **kwargs)]
         return [cls.make_tensor_from_onnx_node(node, **kwargs)]

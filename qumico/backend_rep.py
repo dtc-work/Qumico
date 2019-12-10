@@ -1,6 +1,7 @@
 import ctypes
 import _ctypes
 import pathlib
+import platform
 from inspect import cleandoc
 from collections import defaultdict, OrderedDict
 from itertools import chain
@@ -11,7 +12,7 @@ import numpy as np
 from onnx.backend.base import BackendRep
 
 from qumico.common import c_helper, data_type
-from qumico import (STD_INCLUDES, ADD_INCLUDES, QUMICO_INCLUDE, QUMICO_LIB,
+from qumico import (STD_INCLUDES, QUANT_INCLUDES, ADD_INCLUDES, QUMICO_INCLUDE, QUMICO_LIB,
                     QUMICO_TEMPLATE_PATH, QUMICO_EXPORT_ROOT_PATH, QUMICO_MAIN)
 from qumico.export import Export, ExportType
 from qumico.compile import node_compile
@@ -131,11 +132,18 @@ class QumicoRep(BackendRep):
         NodeDLL.qumico(*(inputs + [output]))
 
         # todo move to postrun decorator method
-        _ctypes.dlclose(NodeDLL._handle) # unload dll that is cached
+        if platform.system() == "Windows":
+            _ctypes.FreeLibrary(NodeDLL._handle) # unload dll that is cached
+        elif  platform.system() == "Linux":
+            _ctypes.dlclose(NodeDLL._handle) # unload dll that is cached
+
         for n in self.graph:
             n.op.reset_for_run()
         
         return [output]
+
+    def _is_quant(self):
+        return any(n.op.Quantizable for n in self.graph)
 
 
     def _generate_initializers_c(self):
@@ -208,6 +216,8 @@ class QumicoRep(BackendRep):
         for n in self.graph:
             op_headers.update(list(chain(n.op.get_c_op_file_name())))
         res.extend(["#include <" + i + ">" for i in STD_INCLUDES])
+        if self._is_quant():
+            res.extend(["#include <" + i + ">" for i in QUANT_INCLUDES])        
         res.extend(['#include "' + QUMICO_INCLUDE + "/" + i + '"' for i in ADD_INCLUDES])
         res.extend(['#include "' + QUMICO_LIB + "/" + i + '"' for i in op_headers])
         if self.initializers:

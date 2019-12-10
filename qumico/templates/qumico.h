@@ -21,6 +21,7 @@
 
 //---------------------------
 //型の宣言
+typedef long int INT64;
 typedef short FIXP16;
 typedef signed char FIXP8;
 typedef short FP16;

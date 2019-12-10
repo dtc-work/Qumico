@@ -1,3 +1,4 @@
+import os
 import colorsys
 import numpy as np
 import tensorflow as tf
@@ -169,13 +170,13 @@ if __name__ == '__main__':
     num_classes = len(voc2007_classes)
 
     # データルートパス(絶対パス)を設定する
-    # root_path = ""
+    #root_path = "/home/natu/myproj/QumicoDev/samples/tiny_yolo_v2/tensorflow/data/"
 
     # 画像ファイルフォルダ
-    data_list_path = root_path + "JPEGImages"
+    data_list_path = os.path.join(root_path, "JPEGImages")
     # タグデータフォルダ（サンプルでは xml に対応しています、
     # 他のデータで学習させたい場合は、utilsフォルダ中のannotation_dataset_toolファイルに読み込むロジックを追加してください。
-    label_list_path = root_path + "Annotations"
+    label_list_path = os.path.join(root_path, "Annotations")
 
     # infer 画像のid を設定する
     pic_num = 0

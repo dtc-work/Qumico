@@ -5,12 +5,13 @@
 バッチ実行を管理するクラス。
 
 ### 使用例
-    ```python
+
+```python
     # DatasetToolのインスタンス化を行います。
     q = DatasetTool()
     # ｋ回のバッチ実行を行います。
     q.next_batch(self, k)
-    ```
+```
 
 ## index_reset
 バッチ実行リストの初期化を行う。
