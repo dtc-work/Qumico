@@ -1,9 +1,12 @@
+from os import path
+
 import tensorflow as tf
 import numpy as np
-from samples.tiny_yolo_v2.tensorflow.tiny_yolo2_model import TINY_YOLO_v2
+
 import samples.utils.pre_process_tool as list_reader
+from samples.tiny_yolo_v2.tensorflow.tiny_yolo2_model import TINY_YOLO_v2
 from samples.utils.annotation_dataset_tool import AnnotationDatasetTool
-from samples.utils.data_augument_tool import (Transform, Sequence,RandomHorizontalFlip,RandomScale,RandomRotate,
+from samples.utils.data_augument_tool import (Sequence,RandomHorizontalFlip,RandomScale,
                                          RandomTranslate, RandomHSV, RandomShear)
 from qumico.Qumico import Qumico
 
@@ -107,14 +110,13 @@ if __name__ == '__main__':
     # クラスの数　Ont-Hot表現用パラメータ
     num_classes = len(voc2007_classes)
 
-    # 学習データルートパス(絶対パス)を設定する
-    # root_path = ""
-
+    # 学習データルートパスを設定する
+    root_path = path.join(path.dirname(__file__), "data")
     # 画像ファイルフォルダ
-    data_list_path = root_path + "JPEGImages"
+    data_list_path = path.join(root_path, "JPEGImages")
     # タグデータフォルダ（サンプルでは xml に対応しています、
     # 他のデータで学習させたい場合は、utilsフォルダ中のannotation_dataset_toolファイルに読み込むロジックを追加してください。
-    label_list_path = root_path + "Annotations"
+    label_list_path = path.join(root_path, "Annotations")
 
     # フォルダからファイルのパスリストを取得する
     data_list = np.asarray(list_reader.get_data_path_list(data_list_path)[:])

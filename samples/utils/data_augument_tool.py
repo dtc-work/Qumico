@@ -1,75 +1,76 @@
 import random
 import numpy as np
 import cv2
-# import matplotlib.pyplot as plt
-import sys
-import os
 
 from samples.utils import data_aug_bbox
-# from data_aug_bbox import *
-
-lib_path = os.path.join(os.path.realpath("."), "data_aug")
-sys.path.append(lib_path)
 
 
 class RandomHorizontalFlip(object):
 
-    """Randomly horizontally flips the Image with the probability *p*
-
-    Parameters
-    ----------
-    - p: float
-        The probability with which the image is flipped
-    
-    Returns
-    -------
-    - numpy.ndaaray
-        Flipped image in the numpy format of shape `HxWxC`
-    - numpy.ndarray
-        Tranformed bounding box co-ordinates of the format `n x 4` where n is
-        number of bounding boxes and 4 represents `x1,y1,x2,y2` of the box
-    """
-
     def __init__(self, p=0.5):
+        """
+            ####
+            初期化
+    
+            ----------
+            ####引数
+            p: float 確率
+            ####戻り値
+            p: 確率
+        """
         self.p = p
 
     def __call__(self, img, bboxes):
-            img_center = np.array(img.shape[:2])[::-1]/2
-            img_center = np.hstack((img_center, img_center))
-            if random.random() < self.p:
-                img = img[:, ::-1, :]
-                bboxes[:, [0, 2]] += 2*(img_center[[0, 2]] - bboxes[:, [0, 2]])
+        """
+            ####
+            ランダムに水平フリップする
+    
+            ####----------
+            引数
+            　
+            image:   ndaaray   画像
+            bboxes:  nparray   boundling boxes
+    
+            ####戻り値
+            回転したimage:   ndaaray   画像
+            回転したbboxes:  ndarray   boundling boxes
+        """
 
-                box_w = abs(bboxes[:, 0] - bboxes[:, 2])
+        img_center = np.array(img.shape[:2])[::-1]/2
+        img_center = np.hstack((img_center, img_center))
+        if random.random() < self.p:
+            img = img[:, ::-1, :]
+            bboxes[:, [0, 2]] += 2*(img_center[[0, 2]] - bboxes[:, [0, 2]])
 
-                bboxes[:, 0] -= box_w
-                bboxes[:, 2] += box_w
+            box_w = abs(bboxes[:, 0] - bboxes[:, 2])
 
-            return img, bboxes
+            bboxes[:, 0] -= box_w
+            bboxes[:, 2] += box_w
+
+        return img, bboxes
 
 
 class HorizontalFlip(object):
-
-    """Randomly horizontally flips the Image with the probability *p*
-
-    Parameters
-    ----------
-    - p: float
-        The probability with which the image is flipped
-    
-    Returns
-    -------
-    - numpy.ndaaray
-        Flipped image in the numpy format of shape `HxWxC`
-    - numpy.ndarray
-        Tranformed bounding box co-ordinates of the format `n x 4` where n is
-        number of bounding boxes and 4 represents `x1,y1,x2,y2` of the box
-    """
 
     def __init__(self):
         pass
 
     def __call__(self, img, bboxes):
+        """　　　　
+            ####
+            水平フリップ
+    
+            ####----------
+            引数
+            　
+            image:   ndaaray   画像
+            bboxes:  nparray   bounding boxes
+    
+            ####戻り値
+            回転したimage:   ndaaray   画像
+            回転したbboxes:  nparray   bounding boxes
+        """
+
         img_center = np.array(img.shape[:2])[::-1]/2
         img_center = np.hstack((img_center, img_center))
 
@@ -85,36 +86,21 @@ class HorizontalFlip(object):
 
 
 class RandomScale(object):
-    """Randomly scales an image    
-    
-    
-    Bounding boxes which have an area of less than 25% in the remaining in the 
-    transformed image is dropped. The resolution is maintained, and the remaining
-    area if any is filled by black color.
-    
-    Parameters
-    ----------
-    - scale: float or tuple(float)
-        if **float**, the image is scaled by a factor drawn 
-        randomly from a range (1 - `scale` , 1 + `scale`). If **tuple**,
-        the `scale` is drawn randomly from values specified by the 
-        tuple
-        
-    Returns
-    -------
-    
-    - numpy.ndaaray
-        Scaled image in the numpy format of shape `HxWxC`
-    
-    - numpy.ndarray
-        Tranformed bounding box co-ordinates of the format `n x 4` where n is 
-        number of bounding boxes and 4 represents `x1,y1,x2,y2` of the box
-        
-    """
 
-    def __init__(self, scale = 0.2, diff = False):
+    def __init__(self, scale=0.2, diff=False):
         self.scale = scale
-
+        """
+            ####
+            初期化
+    
+            ----------
+            ####引数
+            scale: float or tuple(float) scale率
+            diff:　boolean デフォルトはFalse
+            ####戻り値
+            -------
+            なし
+        """
         
         if type(self.scale) == tuple:
             assert len(self.scale) == 2, "Invalid range"
@@ -123,13 +109,36 @@ class RandomScale(object):
         else:
             assert self.scale > 0, "Please input a positive float"
             self.scale = (max(-1, -self.scale), self.scale)
-        
-        self.diff = diff
+            self.diff = diff
+
 
         
 
     def __call__(self, img, bboxes):
-    
+        """
+            ランダムに画像を スケールする
+            元画像の25％未満の面積を持つバウンディングボックス
+            変換された画像はドロップされます。
+            解像度は維持され、残りは領域が黒色で塗りつぶされている場合。
+
+            ####
+            引数
+            　
+            - scale: float or tuple(float)　　　スケール
+            floatの場合: 　(1 - `scale` , 1 + `scale`)の範囲にスケールする
+            tupleの場合: 　その値スケールする
+            image:   ndaaray   画像
+            bboxes:  nparray   boundling boxes
+
+                    　
+            ####戻り値
+
+            - numpy.ndaaray
+                スケールしたimage
+            - numpy.ndarray
+                スケールしたboundingbox
+
+        """
         
         #Chose a random digit to scale by 
         
@@ -167,46 +176,55 @@ class RandomScale(object):
 
 
 class Scale(object):
-    """Scales the image    
-        
-    Bounding boxes which have an area of less than 25% in the remaining in the 
-    transformed image is dropped. The resolution is maintained, and the remaining
-    area if any is filled by black color.
-    
-    
-    Parameters
-    ----------
-    - scale_x: float
-        The factor by which the image is scaled horizontally
-        
-    - scale_y: float
-        The factor by which the image is scaled vertically
-        
-    Returns
-    -------
-    
-    - numpy.ndaaray
-        Scaled image in the numpy format of shape `HxWxC`
-    
-    - numpy.ndarray
-        Tranformed bounding box co-ordinates of the format `n x 4` where n is 
-        number of bounding boxes and 4 represents `x1,y1,x2,y2` of the box
-        
-    """
+
 
     def __init__(self, scale_x = 0.2, scale_y = 0.2):
+        """
+            ####
+            初期化
+        
+            ----------
+            ####引数
+            scale_x: scale_x 率   デフォルトは0.2
+            scale_:　scale_y 率 デフォルトは0.2
+            ####戻り値
+            -------
+            なし y
+        """
         self.scale_x = scale_x
         self.scale_y = scale_y
-        
+
+
 
     def __call__(self, img, bboxes):
-    
-        
-        #Chose a random digit to scale by 
-        
+        """
+            画像スケールする
+                残りの25％未満の面積を持つバウンディングボックス
+                変換された画像はドロップされます。
+                解像度は維持され、残りは領域が黒色で塗りつぶされている場合
+
+
+            ####
+            引数
+            - scale_x: float
+
+                画像を水平方向にスケールする係数
+
+            - scale_y: float
+                画像を垂直に方向にスケールする係数
+
+            -image:   ndaaray   画像
+            -bboxes:  nparray   boundling boxes
+
+                ####戻り値
+
+                - image
+                    スケールしたimage
+                - boxes
+                    スケールしたbounding box
+        """
+
         img_shape = img.shape
-        
-        
         resize_scale_x = 1 + self.scale_x
         resize_scale_y = 1 + self.scale_y
         
@@ -226,40 +244,25 @@ class Scale(object):
         
         img = canvas
         bboxes = data_aug_bbox.clip_box(bboxes, [0,0,1 + img_shape[1], img_shape[0]], 0.25)
-
-    
-        return img, bboxes  
+        return img, bboxes
     
 
 class RandomTranslate(object):
-    """Randomly Translates the image    
-    
-    
-    Bounding boxes which have an area of less than 25% in the remaining in the 
-    transformed image is dropped. The resolution is maintained, and the remaining
-    area if any is filled by black color.
-    
-    Parameters
-    ----------
-    - translate: float or tuple(float)
-        if **float**, the image is translated by a factor drawn 
-        randomly from a range (1 - `translate` , 1 + `translate`). If **tuple**,
-        `translate` is drawn randomly from values specified by the 
-        tuple
-        
-    Returns
-    -------
-    
-    - numpy.ndaaray
-        Translated image in the numpy format of shape `HxWxC`
-    
-    - numpy.ndarray
-        Tranformed bounding box co-ordinates of the format `n x 4` where n is 
-        number of bounding boxes and 4 represents `x1,y1,x2,y2` of the box
-        
-    """
 
     def __init__(self, translate = 0.2, diff = False):
+
+        """
+            ####
+            初期化
+    
+            ----------
+            ####引数
+            translate: float or tuple(float)　translate 率   デフォルトは0.2
+            diff:　　boonlean デフォルトはFalse
+            ####戻り値
+            -------
+            なし
+        """
         self.translate = translate
         
         if type(self.translate) == tuple:
@@ -275,7 +278,32 @@ class RandomTranslate(object):
             
         self.diff = diff
 
-    def __call__(self, img, bboxes):        
+
+    def __call__(self, img, bboxes):
+        """
+            ####ランダムにimageを移動する
+            残りの25％未満の面積を持つバウンディングボックス
+            変換された画像はドロップされます。
+            解像度は維持され、残りは領域が黒色で塗りつぶされている場合
+
+            ####引数
+            ----------
+            - translate: float or tuple(float)
+                floatの場合: 　(1 - `scale` , 1 + `scale`)の範囲に移動する
+                tupleの場合: 　その値する
+
+            image:   ndaaray   画像
+            bboxes:  nparray   boundling boxes
+
+
+          　####戻り値
+            -------
+
+            - image
+                移動したimage
+            - boxes
+                移動したbounding box
+        """
         #Chose a random digit to scale by 
         img_shape = img.shape
         
@@ -295,66 +323,69 @@ class RandomTranslate(object):
         corner_y = int(translate_factor_y*img.shape[0])
         
         
-        
         #change the origin to the top-left corner of the translated box
-        orig_box_cords =  [max(0,corner_y), max(corner_x,0), min(img_shape[0], corner_y + img.shape[0]), min(img_shape[1],corner_x + img.shape[1])]
-    
-        
-        
+        orig_box_cords =  [max(0,corner_y), max(corner_x,0), min(img_shape[0], corner_y + img.shape[0]), min(img_shape[1],corner_x + img.shape[1])]       
     
         mask = img[max(-corner_y, 0):min(img.shape[0], -corner_y + img_shape[0]), max(-corner_x, 0):min(img.shape[1], -corner_x + img_shape[1]),:]
         canvas[orig_box_cords[0]:orig_box_cords[2], orig_box_cords[1]:orig_box_cords[3],:] = mask
         img = canvas
         
         bboxes[:,:4] += [corner_x, corner_y, corner_x, corner_y]
-        
-
-        bboxes = data_aug_bbox.clip_box(bboxes, [0,0,img_shape[1], img_shape[0]], 0.25)
-        
-    
-        
-    
+        bboxes = data_aug_bbox.clip_box(bboxes, [0,0,img_shape[1], img_shape[0]], 0.25)    
         
         return img, bboxes
     
 
 class Translate(object):
-    """Randomly Translates the image    
-    
-    
-    Bounding boxes which have an area of less than 25% in the remaining in the 
-    transformed image is dropped. The resolution is maintained, and the remaining
-    area if any is filled by black color.
-    
-    Parameters
-    ----------
-    - translate: float or tuple(float)
-        if **float**, the image is translated by a factor drawn 
-        randomly from a range (1 - `translate` , 1 + `translate`). If **tuple**,
-        `translate` is drawn randomly from values specified by the 
-        tuple
-        
-    Returns
-    -------
-    
-    - numpy.ndaaray
-        Translated image in the numpy format of shape `HxWxC`
-    
-    - numpy.ndarray
-        Tranformed bounding box co-ordinates of the format `n x 4` where n is 
-        number of bounding boxes and 4 represents `x1,y1,x2,y2` of the box
-        
-    """
+
 
     def __init__(self, translate_x = 0.2, translate_y = 0.2, diff = False):
+        """
+            ####
+            初期化
+
+            ----------
+            ####引数
+            translate_x: float or tuple(float)　translate 率   デフォルトは0.2
+            translate_y: float or tuple(float)　translate 率   デフォルトは0.2
+            diff:　boonlean デフォルトはFalse
+            ####戻り値
+            -------
+            なし
+        """
         self.translate_x = translate_x
         self.translate_y = translate_y
 
         assert self.translate_x > 0 and self.translate_x < 1
         assert self.translate_y > 0 and self.translate_y < 1
- 
 
-    def __call__(self, img, bboxes):        
+
+
+    def __call__(self, img, bboxes):
+        """画像移動する
+
+           残りの25％未満の面積を持つバウンディングボックス
+           変換された画像はドロップされる。
+           解像度は維持され、残りは領域が黒色で塗りつぶされている場合。
+
+           ###
+           引数
+           ----------
+           - translate: float or tuple(float)
+               floatの場合: 　(1 - `scale` , 1 + `scale`)の範囲に移動する
+               tupleの場合: 　その値する
+           image:   ndaaray   画像
+           bboxes:  nparray   boundling boxes
+
+           ####戻り値
+           -------
+
+           - image
+               移動したimage
+           - boxes
+               移動したbounding box
+        """
+
         #Chose a random digit to scale by 
         img_shape = img.shape
         
@@ -362,69 +393,41 @@ class Translate(object):
         
         #percentage of the dimension of the image to translate
         translate_factor_x = self.translate_x
-        translate_factor_y = self.translate_y
-        
+        translate_factor_y = self.translate_y        
             
         canvas = np.zeros(img_shape).astype(np.uint8)
 
-        
         #get the top-left corner co-ordinates of the shifted box 
         corner_x = int(translate_factor_x*img.shape[1])
-        corner_y = int(translate_factor_y*img.shape[0])
-        
-        
+        corner_y = int(translate_factor_y*img.shape[0])        
         
         #change the origin to the top-left corner of the translated box
         orig_box_cords =  [max(0,corner_y), max(corner_x,0), min(img_shape[0], corner_y + img.shape[0]), min(img_shape[1],corner_x + img.shape[1])]
-
-        
-        
 
         mask = img[max(-corner_y, 0):min(img.shape[0], -corner_y + img_shape[0]), max(-corner_x, 0):min(img.shape[1], -corner_x + img_shape[1]),:]
         canvas[orig_box_cords[0]:orig_box_cords[2], orig_box_cords[1]:orig_box_cords[3],:] = mask
         img = canvas
         
-        bboxes[:,:4] += [corner_x, corner_y, corner_x, corner_y]
-        
-        
+        bboxes[:,:4] += [corner_x, corner_y, corner_x, corner_y]        
         bboxes = data_aug_bbox.clip_box(bboxes, [0,0,img_shape[1], img_shape[0]], 0.25)
-        
-
-        
-
         
         return img, bboxes
     
     
 class RandomRotate(object):
-    """Randomly rotates an image    
-    
-    
-    Bounding boxes which have an area of less than 25% in the remaining in the 
-    transformed image is dropped. The resolution is maintained, and the remaining
-    area if any is filled by black color.
-    
-    Parameters
-    ----------
-    - angle: float or tuple(float)
-        if **float**, the image is rotated by a factor drawn 
-        randomly from a range (-`angle`, `angle`). If **tuple**,
-        the `angle` is drawn randomly from values specified by the 
-        tuple
-        
-    Returns
-    -------
-    
-    - numpy.ndaaray
-        Rotated image in the numpy format of shape `HxWxC`
-    
-    - numpy.ndarray
-        Tranformed bounding box co-ordinates of the format `n x 4` where n is 
-        number of bounding boxes and 4 represents `x1,y1,x2,y2` of the box
-        
-    """
 
     def __init__(self, angle = 10):
+        """
+            ####
+            初期化
+    
+            ----------
+            ####引数
+            - angle: float or tuple(float)　デフォルトは10
+            ####戻り値
+            -------
+            なし
+        """
         self.angle = angle
         
         if type(self.angle) == tuple:
@@ -432,8 +435,34 @@ class RandomRotate(object):
             
         else:
             self.angle = (-self.angle, self.angle)
-            
+
+
+
     def __call__(self, img, bboxes):
+        """
+            ランダムに画像回転する
+
+             残りの25％未満の面積を持つバウンディングボックス
+             変換された画像はドロップされます。
+             解像度は維持され、残りは領域が黒色で塗りつぶされている場合。
+
+             ###
+             引数
+             ----------
+             - angle: float or tuple(float)
+                 floatの場合: 　(1 - `scale` , 1 + `scale`)の範囲に回転する
+                 tupleの場合: 　その値する
+            image:   ndaaray   画像
+            bboxes:  nparray   boundling boxes
+
+             ####戻り値
+             -------
+
+             - image
+                 回転したimage
+             - boxes
+                 回転したboundingbox
+        """
         angle = random.uniform(*self.angle)
     
         w,h = img.shape[1], img.shape[0]
@@ -468,44 +497,48 @@ class RandomRotate(object):
 
     
 class Rotate(object):
-    """Rotates an image    
-    
-    
-    Bounding boxes which have an area of less than 25% in the remaining in the 
-    transformed image is dropped. The resolution is maintained, and the remaining
-    area if any is filled by black color.
-    
-    Parameters
-    ----------
-    - angle: float
-        The angle by which the image is to be rotated 
-        
-        
-    Returns
-    -------
-    
-    - numpy.ndaaray
-        Rotated image in the numpy format of shape `HxWxC`
-    
-    - numpy.ndarray
-        Tranformed bounding box co-ordinates of the format `n x 4` where n is 
-        number of bounding boxes and 4 represents `x1,y1,x2,y2` of the box
-        
-    """
+
 
     def __init__(self, angle):
+        """
+            ####
+            初期化
+
+            ----------
+            ####引数
+            - angle: float or tuple(float)
+            ####戻り値
+            -------
+            なし
+        """
         self.angle = angle
         
 
     def __call__(self, img, bboxes):
+        """画像回転する
+
+             残りの25％未満の面積を持つバウンディングボックス
+             変換された画像はドロップされます。
+             解像度は維持され、残りは領域が黒色で塗りつぶされている場合。
+
+             ###
+             引数
+            ----------
+            - angle: float or tuple(float)
+            floatの場合: 　(1 - `scale` , 1 + `scale`)の範囲に回転する
+            tupleの場合: 　その値する    angle: int   角度 デフォルトは10
+            image:   ndaaray   画像
+            bboxes:  nparray   boundling boxes
+     　
+
+             ####戻り値
+             -------
+             - image
+                 回転したimage
+             - boxes
+                 回転したbounding box
         """
-        Args:
-            img (PIL Image): Image to be flipped.
-        Returns:
-            PIL Image: Randomly flipped image.
-            
-            
-        """
+
         
         angle = self.angle
         
@@ -519,9 +552,7 @@ class Rotate(object):
         img = data_aug_bbox.rotate_im(img, angle)
         
         corners[:,:8] = data_aug_bbox.rotate_box(corners[:,:8], angle, cx, cy, h, w)
-        
-        
-        
+                
         
         new_bbox = data_aug_bbox.get_enclosing_box(corners)
         
@@ -544,34 +575,21 @@ class Rotate(object):
 
 
 class RandomShear(object):
-    """Randomly shears an image in horizontal direction   
-    
-    
-    Bounding boxes which have an area of less than 25% in the remaining in the 
-    transformed image is dropped. The resolution is maintained, and the remaining
-    area if any is filled by black color.
-    
-    Parameters
-    ----------
-    - shear_factor: float or tuple(float)
-        if **float**, the image is sheared horizontally by a factor drawn 
-        randomly from a range (-`shear_factor`, `shear_factor`). If **tuple**,
-        the `shear_factor` is drawn randomly from values specified by the 
-        tuple
-        
-    Returns
-    -------
-    
-    - numpy.ndaaray
-        Sheared image in the numpy format of shape `HxWxC`
-    
-    - numpy.ndarray
-        Tranformed bounding box co-ordinates of the format `n x 4` where n is 
-        number of bounding boxes and 4 represents `x1,y1,x2,y2` of the box
-        
-    """
 
     def __init__(self, shear_factor = 0.2):
+
+        """
+            ####
+            初期化
+
+            ----------
+            ####引数
+            - shear_factor: float or tuple(float)　　shear率
+            ####戻り値
+            -------
+            なし
+        """
+
         self.shear_factor = shear_factor
         
         if type(self.shear_factor) == tuple:
@@ -580,8 +598,36 @@ class RandomShear(object):
             self.shear_factor = (-self.shear_factor, self.shear_factor)
         
         shear_factor = random.uniform(*self.shear_factor)
+
+
+
         
     def __call__(self, img, bboxes):
+
+        """
+            ランダムに画像カットする
+
+            残りの25％未満の面積を持つバウンディングボックス
+            変換された画像はドロップされます。
+            解像度は維持され、残りは領域が黒色で塗りつぶされている場合。
+
+            ###
+            引数
+            ----------
+       　　- angle: float or tuple(float)
+           floatの場合: 　(1 - `scale` , 1 + `scale`)の範囲にカットする
+           tupleの場合: 　その値する    angle: int   角度 デフォルトは10　
+            image:   ndaaray   画像
+       　　 bboxes:  nparray   boundling boxes
+
+            ####戻り値
+            -------
+    　
+            - image
+                カットしたimage
+            - boxes
+                カットしたboundingbox
+        """
     
         shear_factor = random.uniform(*self.shear_factor)
     
@@ -612,85 +658,107 @@ class RandomShear(object):
         return img, bboxes
         
 class Shear(object):
-    """Shears an image in horizontal direction   
-    
-    
-    Bounding boxes which have an area of less than 25% in the remaining in the 
-    transformed image is dropped. The resolution is maintained, and the remaining
-    area if any is filled by black color.
-    
-    Parameters
-    ----------
-    - shear_factor: float
-        Factor by which the image is sheared in the x-direction
-       
-    Returns
-    -------
-    
-    - numpy.ndaaray
-        Sheared image in the numpy format of shape `HxWxC`
-    
-    - numpy.ndarray
-        Tranformed bounding box co-ordinates of the format `n x 4` where n is 
-        number of bounding boxes and 4 represents `x1,y1,x2,y2` of the box
-        
-    """
 
     def __init__(self, shear_factor = 0.2):
+        """
+            ####
+            初期化
+        
+            ----------
+            ####引数
+            - shear_factor: float or tuple(float)　　shear率
+            ####戻り値
+            -------
+            なし
+        """
         self.shear_factor = shear_factor
-        
-    
+
+
     def __call__(self, img, bboxes):
-        
+        """
+            画像カットする
+
+             残りの25％未満の面積を持つバウンディングボックス
+             変換された画像はドロップされます。
+             解像度は維持され、残りは領域が黒色で塗りつぶされている場合。
+
+             ###
+             引数
+             ----------
+             - shear: float or tuple(float)
+                 floatの場合: 　(1 - `scale` , 1 + `scale`)の範囲にカットする
+                 tupleの場合: 　その値する
+            　
+            -image:   ndaaray   画像
+           　-bboxes:  nparray   boundling boxes
+
+
+             ####戻り値
+             -------
+
+             - image
+                 カットしたimage
+             - boxes
+                 カットしたbounding box
+        """
+
+
         shear_factor = self.shear_factor
         if shear_factor < 0:
             img, bboxes = HorizontalFlip()(img, bboxes)
 
-        
         M = np.array([[1, abs(shear_factor), 0],[0,1,0]])
                 
         nW =  img.shape[1] + abs(shear_factor*img.shape[0])
         
-        bboxes[:,[0,2]] += ((bboxes[:,[1,3]])*abs(shear_factor)).astype(int) 
-        
-
+        bboxes[:,[0,2]] += ((bboxes[:,[1,3]])*abs(shear_factor)).astype(int)
         img = cv2.warpAffine(img, M, (int(nW), img.shape[0]))
         
         if shear_factor < 0:
             img, bboxes = HorizontalFlip()(img, bboxes)
-             
-        
+
         return img, bboxes
     
 class Resize(object):
-    """Resize the image in accordance to `image_letter_box` function in darknet 
-    
-    The aspect ratio is maintained. The longer side is resized to the input 
-    size of the network, while the remaining space on the shorter side is filled 
-    with black color. **This should be the last transform**
-    
-    
-    Parameters
-    ----------
-    - inp_dim : tuple(int)
-        tuple containing the size to which the image will be resized.
-        
-    Returns
-    -------
-    
-    - numpy.ndaaray
-        Sheared image in the numpy format of shape `HxWxC`
-    
-    - numpy.ndarray
-        Resized bounding box co-ordinates of the format `n x 4` where n is 
-        number of bounding boxes and 4 represents `x1,y1,x2,y2` of the box
-        
-    """
+
     
     def __init__(self, inp_dim):
+        """
+            ####
+            初期化
+
+            ----------
+            ####引数
+            - inp_dim: float 　
+
+            ####戻り値
+            -------
+            なし
+        """
         self.inp_dim = inp_dim
-        
+
+
     def __call__(self, img, bboxes):
+        """画像リサイズする
+            `image_letter_box`関数に従って画像のサイズを変更します` function in darknet
+            アスペクト比は維持されます。長い辺は入力に合わせてサイズ変更されます
+            ネットワークのサイズ、短辺の残りのスペースはいっぱい
+            黒い色で。 **これが最後の変換でなければなりません***
+
+             ###
+             引数
+            - inp_dim : tuple(int)　リサイズの比率
+        　  - image:   ndaaray   画像
+            - bboxes:  nparray   boundling boxes
+
+            ####戻り値
+            -------
+            　- image
+                 カットしたimage
+             - boxes
+                 カットしたbounding box
+
+        """
         w,h = img.shape[1], img.shape[0]
         img = data_aug_bbox.letterbox_image(img, self.inp_dim)
     
@@ -715,48 +783,41 @@ class Resize(object):
     
 
 class RandomHSV(object):
-    """HSV Transform to vary hue saturation and brightness
-    
-    Hue has a range of 0-179
-    Saturation and Brightness have a range of 0-255. 
-    Chose the amount you want to change thhe above quantities accordingly. 
-    
-    
-    
-    
-    Parameters
-    ----------
-    - hue : None or int or tuple (int)
-        If None, the hue of the image is left unchanged. If int, 
-        a random int is uniformly sampled from (-hue, hue) and added to the 
-        hue of the image. If tuple, the int is sampled from the range 
-        specified by the tuple.   
-        
-    - saturation : None or int or tuple(int)
-        If None, the saturation of the image is left unchanged. If int, 
-        a random int is uniformly sampled from (-saturation, saturation) 
-        and added to the hue of the image. If tuple, the int is sampled
-        from the range  specified by the tuple.   
-        
-    - brightness : None or int or tuple(int)
-        If None, the brightness of the image is left unchanged. If int, 
-        a random int is uniformly sampled from (-brightness, brightness) 
-        and added to the hue of the image. If tuple, the int is sampled
-        from the range  specified by the tuple.   
-    
-    Returns
-    -------
-    
-    - numpy.ndaaray
-        Transformed image in the numpy format of shape `HxWxC`
-    
-    - numpy.ndarray
-        Resized bounding box co-ordinates of the format `n x 4` where n is 
-        number of bounding boxes and 4 represents `x1,y1,x2,y2` of the box
-        
-    """
+
     
     def __init__(self, hue = None, saturation = None, brightness = None):
+        """
+            ####
+            初期化
+
+            ----------
+            ####引数
+            -色相：なしまたはintまたはtuple（int）
+                    なしの場合、  画像の色相は変更されません。
+                    intの場合、     ンダムなintは（-hue、hue）から均一にサンプリングされ、
+                    画像の色相。
+                    tuple（int）の場合、  intは範囲からサンプリングされます
+                    タプルによって指定されます。
+
+            -彩度：なしまたはintまたはtuple（int）
+                    なしの場合、画像の彩度は変更されません。
+                    intの場合、ランダムなintは（-saturation、saturation）から一様にサンプリングされます
+                    彩度の色相に追加されます。
+                    tuple（int）の場合、intがサンプリングされます
+                    タプルで指定された範囲から。
+
+            -明度：なしまたはintまたはtuple（int）
+                    なしの場合、画像の明るさは変更されません。
+                    intの場合、
+                    ランダムなintは（-brightness、brightness）から均一にサンプリングされます
+                    画像の色相に追加されます。
+                    tuple（int）の場合、intがサンプリングされます
+                    タプルで指定された範囲から。
+
+            ####戻り値
+            -------
+            なし
+        """
         if hue:
             self.hue = hue 
         else:
@@ -782,8 +843,29 @@ class RandomHSV(object):
         
         if type(brightness) != tuple:
             self.brightness = (-self.brightness, self.brightness)
-    
+
+
     def __call__(self, img, bboxes):
+        """
+            色相の彩度と明度を変えるHSV変換
+
+            色相の範囲は0〜179です。
+            彩度と明るさの範囲は0〜255です。
+            それに応じて、上記の数量を変更する金額を選択します。
+
+             ###
+             引数
+            image:   ndaaray   画像
+            bboxes:  nparray   boundling boxes
+
+            ####戻り値
+             -------
+            　- image
+                 カットしたimage
+             - boxes
+                 カットしたbounding box
+
+        """
 
         hue = random.randint(*self.hue)
         saturation = random.randint(*self.saturation)
@@ -799,42 +881,58 @@ class RandomHSV(object):
         
         img = img.astype(np.uint8)
 
-        
-        
         return img, bboxes
     
 class Sequence(object):
 
-    """Initialise Sequence object
-    
-    Apply a Sequence of transformations to the images/boxes.
-    
-    Parameters
-    ----------
-    - augemnetations : list 
-        List containing Transformation Objects in Sequence they are to be 
-        applied
-    
-    - probs : int or list 
-        If **int**, the probability with which each of the transformation will 
-        be applied. If **list**, the length must be equal to *augmentations*. 
-        Each element of this list is the probability with which each 
-        corresponding transformation is applied
-    
-    Returns
-    -------
-    
-    - Sequence
-        Sequence Object 
-        
-    """
+
     def __init__(self, augmentations, probs = 1):
 
-        
+        """
+            ####
+            初期化
+
+            ----------
+            ####引数
+            - augemnetations: list
+            変換オブジェクトを順番に含むリスト
+            適用された
+
+
+            - probs: int or list
+
+            ** int ** の場合、各変換が発生する確率
+            適用されます。
+            ** list ** の場合、長さは * augmentations * と等しくなければなりません。
+            このリストの各要素は、それぞれが
+            対応する変換が適用されます
+            ####戻り値
+            -------
+            なし
+        """
         self.augmentations = augmentations
         self.probs = probs
-        
+
+
     def __call__(self, images, bboxes):
+        """
+            シーケンスオブジェクトの初期化
+
+            変換のシーケンスを画像/ボックスに適用します。
+
+            ###引数
+            ----------
+
+            -image:   ndaaray   画像
+            -bboxes:  nparray   boundling boxes
+
+            ###戻り値
+            -------
+            　- image
+                 変換したimage
+             - boxes
+                 変換したbounding box
+        """
         for i, augmentation in enumerate(self.augmentations):
             if type(self.probs) == list:
                 prob = self.probs[i]
@@ -844,10 +942,23 @@ class Sequence(object):
             if random.random() < prob:
                 images, bboxes = augmentation(images, bboxes)
         return images, bboxes
-    
-    
-    
+
 def Transform(transformer, x_train, y_train):
+    """画像データのタイプ変換
+　
+     ###
+     引数
+　   transformer:
+　   x_train:
+    　y_train:
+    ####戻り値
+    -------
+    　- image
+         変換したimage
+     - boxes
+         変換したbounding box
+
+    """
     for i, (x, y) in enumerate(zip(x_train, y_train)):
         print("Transform",x, y)
         tra_x, tra_y = transformer(x.transpose(1, 2, 0), np.array(y)[...,:4].astype(np.float))
@@ -858,5 +969,3 @@ def Transform(transformer, x_train, y_train):
         x_train[i] = tra_x.transpose(2,0,1)
     
     return x_train, y_train
-
-    

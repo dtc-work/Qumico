@@ -9,5 +9,5 @@ if __name__ == "__main__":
     onnx_path = path.join(dir_path, "onnx", "tiny_yolo_2.onnx")
     out_c_path = path.join(dir_path, "out_c")
 
-    Qumico().conv_onnx_to_c(onnx_path, out_c_path, compile=True, export_type=ExportType.NPY)
+    Qumico().conv_onnx_to_c(onnx_path, out_c_path, compile=False, export_type=ExportType.NPY)
     print("Cソースを生成しました。出力先:", out_c_path)

@@ -62,11 +62,8 @@ def infer(image_path, so_lib_path):
     print("run:end", datetime.now())
     print("elapsed_time:{0}".format(time.time() - start) + "[sec]")
     label_index = np.argmax(output)
-    print("output value")
-    print(output)
-    print("result")
     print(LABELS[label_index])
-    print("finish")
+
 
 
 if __name__ == '__main__':

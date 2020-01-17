@@ -3,27 +3,21 @@ import numpy as np
 
 
 def draw_rect(im, cords, color = None):
-    """Draw the rectangle on the image
+    """ 
+        #### 
+        画像の中で矩形を作る
     
-    Parameters
-    ----------
-    
-    im : numpy.ndarray
-        numpy image 
-    
-    cords: numpy.ndarray
-        Numpy array containing bounding boxes of shape `N X 4` where N is the 
-        number of bounding boxes and the bounding boxes are represented in the
-        format `x1 y1 x2 y2`
-        
-    Returns
-    -------
-    
-    numpy.ndarray
-        numpy image with bounding boxes drawn on it
-        
+        ----------
+        ####引数
+        im : image　ファイル
+        cords : 　array 　bounding boxesの座標　
+    　  color : array 　デフォルトはnone
+       　####戻り値
+        -------
+        im:　list 
+        (画像ファイル、point(x1,y1), point2(x2,y2), 画像の色、画像の枠) 　　
     """
-    
+
     im = im.copy()
     
     cords = cords[:,:4]
@@ -40,36 +34,38 @@ def draw_rect(im, cords, color = None):
         im = cv2.rectangle(im.copy(), pt1, pt2, color, int(max(im.shape[:2])/200))
     return im
 
+
 def bbox_area(bbox):
+
+    """
+    ####
+    ボックスの面積を取得
+
+    ----------
+    ####引数
+    bbox:　 array         　bounding box集
+　
+   　####戻り値
+    -------
+    計算した面積の結果　
+    """
+
     return (bbox[:,2] - bbox[:,0])*(bbox[:,3] - bbox[:,1])
         
 def clip_box(bbox, clip_box, alpha):
-    """Clip the bounding boxes to the borders of an image
+
+    """
+        ####
+        clipboxと一番重なられるbounding boxを探す
     
-    Parameters
-    ----------
-    
-    bbox: numpy.ndarray
-        Numpy array containing bounding boxes of shape `N X 4` where N is the 
-        number of bounding boxes and the bounding boxes are represented in the
-        format `x1 y1 x2 y2`
-    
-    clip_box: numpy.ndarray
-        An array of shape (4,) specifying the diagonal co-ordinates of the image
-        The coordinates are represented in the format `x1 y1 x2 y2`
-        
-    alpha: float
-        If the fraction of a bounding box left in the image after being clipped is 
-        less than `alpha` the bounding box is dropped. 
-    
-    Returns
-    -------
-    
-    numpy.ndarray
-        Numpy array containing **clipped** bounding boxes of shape `N X 4` where N is the 
-        number of bounding boxes left are being clipped and the bounding boxes are represented in the
-        format `x1 y1 x2 y2` 
-    
+        ----------
+        ####引数
+        bbox:　 array         　bounding box集
+    　  clip_box:　array 　 　 　実際のボックス   
+        alpha: float         　　alpha値(重ねる敷居値)   
+       　####戻り値
+        -------
+        bbox: array 　一番重なるbounding boxの値残す(他のは0になる)　
     """
 
     ar_ = (bbox_area(bbox))
@@ -85,37 +81,26 @@ def clip_box(bbox, clip_box, alpha):
 #     delta_area = ((ar_ - bbox_area(bbox))/ar_)    
     mask = (delta_area < (1 - alpha)).astype(int)
 
-    bbox =  bbox * mask[...,np.newaxis]
+    bbox = bbox * mask[...,np.newaxis]
 #     maskbbox = bbox[mask == 1,:]
-
-
 
     return bbox
 
 
 def rotate_im(image, angle):
-    """Rotate the image.
-    
-    Rotate the image such that the rotated image is enclosed inside the tightest
-    rectangle. The area not occupied by the pixels of the original image is colored
-    black. 
-    
-    Parameters
-    ----------
-    
-    image : numpy.ndarray
-        numpy image
-    
-    angle : float
-        angle by which the image is to be rotated
-    
-    Returns
-    -------
-    
-    numpy.ndarray
-        Rotated Image
-    
+
     """
+        ####
+       　画像を回転する。像数は黒いの場合は回転しない。
+        ----------
+        ####引数
+        image:　 array           bounding box集
+    　   angle:　array 　 　 　   回転するimageの角度 
+       　####戻り値
+        -------
+        image: array 　回転したimage　
+    """
+
     # grab the dimensions of the image and then determine the
     # centre
     (h, w) = image.shape[:2]
@@ -139,28 +124,21 @@ def rotate_im(image, angle):
     # perform the actual rotation and return the image
     image = cv2.warpAffine(image, M, (nW, nH))
 
-#    image = cv2.resize(image, (w,h))
     return image
 
 def get_corners(bboxes):
-    
-    """Get corners of bounding boxes
-    
-    Parameters
-    ----------
-    
-    bboxes: numpy.ndarray
-        Numpy array containing bounding boxes of shape `N X 4` where N is the 
-        number of bounding boxes and the bounding boxes are represented in the
-        format `x1 y1 x2 y2`
-    
-    returns
-    -------
-    
-    numpy.ndarray
-        Numpy array of shape `N x 8` containing N bounding boxes each described by their 
-        corner co-ordinates `x1 y1 x2 y2 x3 y3 x4 y4`      
-        
+
+    """
+        bounding boxesの４点を取得する    
+        ####
+       　bounding boxのコーナー取得する
+        ----------
+        ####引数
+        bboxes:　 array   bounding　box集
+    　  　
+       ####戻り値
+    　　-------
+        corners: array    画像のコーナー  　　
     """
     width = (bboxes[:,2] - bboxes[:,0]).reshape(-1,1)
     height = (bboxes[:,3] - bboxes[:,1]).reshape(-1,1)
@@ -182,39 +160,23 @@ def get_corners(bboxes):
     return corners
 
 def rotate_box(corners,angle,  cx, cy, h, w):
-    
-    """Rotate the bounding box.
-    
-    
-    Parameters
-    ----------
-    
-    corners : numpy.ndarray
-        Numpy array of shape `N x 8` containing N bounding boxes each described by their 
-        corner co-ordinates `x1 y1 x2 y2 x3 y3 x4 y4`
-    
-    angle : float
-        angle by which the image is to be rotated
-        
-    cx : int
-        x coordinate of the center of image (about which the box will be rotated)
-        
-    cy : int
-        y coordinate of the center of image (about which the box will be rotated)
-        
-    h : int 
-        height of the image
-        
-    w : int 
-        width of the image
-    
-    Returns
-    -------
-    
-    numpy.ndarray
-        Numpy array of shape `N x 8` containing N rotated bounding boxes each described by their 
-        corner co-ordinates `x1 y1 x2 y2 x3 y3 x4 y4`
+
     """
+        ####
+       　bounding boxを回転する。
+        ----------
+        ####引数
+        corners:　 array    bounding box集
+    　  angle:　array 　 　 回転するimageの角度
+        cx: int    　中心のx座標
+        cy:　int　 　中心のy座標
+        h:  int　    画像の高さ
+        w:  int      画像の広さ
+       　####戻り値
+        -------
+        calculated: array 　回転したbounding boxのコーナー座標（`x1 y1 x2 y2 x3 y3 x4 y4`）　
+    """
+
 
     corners = corners.reshape(-1,2)
     corners = np.hstack((corners, np.ones((corners.shape[0],1), dtype = type(corners[0][0]))))
@@ -239,24 +201,19 @@ def rotate_box(corners,angle,  cx, cy, h, w):
 
 
 def get_enclosing_box(corners):
-    """Get an enclosing box for ratated corners of a bounding box
-    
-    Parameters
-    ----------
-    
-    corners : numpy.ndarray
-        Numpy array of shape `N x 8` containing N bounding boxes each described by their 
-        corner co-ordinates `x1 y1 x2 y2 x3 y3 x4 y4`  
-    
-    Returns 
-    -------
-    
-    numpy.ndarray
-        Numpy array containing enclosing bounding boxes of shape `N X 4` where N is the 
-        number of bounding boxes and the bounding boxes are represented in the
-        format `x1 y1 x2 y2`
-        
+
     """
+        ####
+       　回転した boundingboxのenclosing box取得する。
+        ----------
+        ####引数
+        corners:　 array    bounding box集
+        
+       　####戻り値
+        -------
+        final: array: array  enclosing box(`x1 y1 x2 y2`)　　
+    """
+
     x_ = corners[:,[0,2,4,6]]
     y_ = corners[:,[1,3,5,7]]
     
@@ -271,24 +228,20 @@ def get_enclosing_box(corners):
 
 
 def letterbox_image(img, inp_dim):
-    '''resize image with unchanged aspect ratio using padding
+
+    """
+        ####
+       　imageを固定な比率でリサイズする（パティング）
+        ----------
+        ####引数
+        img:　 array    bounding box集
     
-    Parameters
-    ----------
+        inp_dim: tuple(int)　:　リサイズしたimageのサイズ
     
-    img : numpy.ndarray
-        Image 
-    
-    inp_dim: tuple(int)
-        shape of the reszied image
-        
-    Returns
-    -------
-    
-    numpy.ndarray:
-        Resized image
-    
-    '''
+       　####戻り値
+        -------
+        canvas:  array  enclosing box(`x1 y1 x2 y2`)　　
+    """
 
     inp_dim = (inp_dim, inp_dim)
     img_w, img_h = img.shape[1], img.shape[0]

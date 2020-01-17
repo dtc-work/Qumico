@@ -2,6 +2,19 @@
 ![Qumico](/docs/logo.jpg)
 
 
+## NEW!
+Google Colaboratoryを利用して、各サンプルを簡単に試せるチュートリアルを準備しました。
+
+- [mlp](https://colab.research.google.com/github.com/PasonaTech-Inc/Qumico/blob/master/samples/mlp/tensorflow/mlp_colab.ipynb)：MultiLayer Perceptron
+- [conv](https://colab.research.google.com/github.com/PasonaTech-Inc/Qumico/blob/master/samples/conv/tensorflow/conv_colab.ipynb)：Convolution
+- [vgg](https://colab.research.google.com/github.com/PasonaTech-Inc/Qumico/blob/master/samples/vgg16/keras/vgg16_colab.ipynb)：VGG16
+- [tiny_yolo_v2](https://colab.research.google.com/github.com/PasonaTech-Inc/Qumico/tree/master/samples/tiny_yolo_v2/tensorflow/tiny_yolo2_colab.ipynb)：tiny_yolo_v2
+- [tiny_yolo_v2_yad2k](https://colab.research.google.com/github.com/PasonaTech-Inc/Qumico/tree//samples/tiny_yolo_v2_yad2k/keras/tiny_yolo_v2_yad2k_colab.ipynb)：tiny_yolo_v2(推論のみ)
+- [mobilenet](https://colab.research.google.com/github.com/PasonaTech-Inc/Qumico/tree/master/samples/mobilenet/tensorflow/mobilenet_colab.ipynb)：Mobilenet V1
+- [automl_dogcat](https://colab.research.google.com/github.com/PasonaTech-Inc/Qumico/tree/master/samples/automl_dogcat/tensorflow/DogCat_colab.ipynb)：AutoMLを利用した犬猫の識別 
+
+
+
 ## 概要
 `Qumico`(クミコ)は、パソナテックが独自開発したフレームワークです。<br>
 IoT、ロボット、AI家電等、エッジ機器でディープラーニングを動作させることが可能です。<br>
@@ -35,13 +48,13 @@ IoT、ロボット、AI家電等、エッジ機器でディープラーニング
 
 
 ## サンプル
-- [mlp](/docs/docs/samples/mlp.md)：MultiLayer Perceptronサンプル
-- [conv](/docs/docs/samples/conv.md)：Convolutionサンプル
-- [vgg](/docs/docs/samples/vgg16.md)：VGG16サンプルd
-- [tiny_yolo_v2](/docs/docs/samples/tiny_yolo.md)：tiny_yolo_v2サンプル(要CUDA, モデル学習あり)
-- [tiny_yolo_v2_yad2k](/docs/docs/samples/tiny_yolo_yad2k.md)：tiny_yolo_v2_yad2k(推論のみ, RapsberryPi向け)
-- [mobilenet](/docs/docs/samples/mobilenet.md)：Mobilenet V1(量子化済み, TFLite形式)
-- [automl_dogcat](/docs/docs/samples/automl_dogcat.md)：AutoMLを利用した識別
+- [mlp](/docs/docs/samples/mlp.md)：MultiLayer Perceptronサンプル - [colab](https://colab.research.google.com/github.com/PasonaTech-Inc/Qumico/blob/master/samples/mlp/tensorflow/mlp_colab.ipynb)：colabサンプル
+- [conv](/docs/docs/samples/conv.md)：Convolutionサンプル - [colab](https://colab.research.google.com/github.com/PasonaTech-Inc/Qumico/blob/master/samples/conv/tensorflow/conv_colab.ipynb)：colabサンプル
+- [vgg](/docs/docs/samples/vgg16.md)：VGG16サンプル - [colab](https://colab.research.google.com/github.com/PasonaTech-Inc/Qumico/blob/master/samples/vgg16/keras/vgg16_colab.ipynb)：colabサンプル
+- [tiny_yolo_v2](/docs/docs/samples/tiny_yolo.md)：tiny_yolo_v2サンプル(要CUDA, モデル学習あり) - [colab](https://colab.research.google.com/github.com/PasonaTech-Inc/Qumico/tree/master/samples/tiny_yolo_v2/tensorflow/tiny_yolo2_colab.ipynb)：colabサンプル
+- [tiny_yolo_v2_yad2k](/docs/docs/samples/tiny_yolo_yad2k.md)：tiny_yolo_v2_yad2k(推論のみ, RapsberryPi向け) - [colab](https://colab.research.google.com/github.com/PasonaTech-Inc/Qumico/tree//samples/tiny_yolo_v2_yad2k/keras/tiny_yolo_v2_yad2k_colab.ipynb)：colabサンプル
+- [mobilenet](/docs/docs/samples/mobilenet.md)：Mobilenet V1(量子化済み, TFLite形式) - [colab](https://colab.research.google.com/github.com/PasonaTech-Inc/Qumico/tree/master/samples/mobilenet/tensorflow/mobilenet_colab.ipynb)：colabサンプル
+- [automl_dogcat](/docs/docs/samples/automl_dogcat.md)：AutoMLを利用した識別 - [colab](https://colab.research.google.com/github.com/PasonaTech-Inc/Qumico/tree/master/samples/automl_dogcat/tensorflow/DogCat_colab.ipynb)：colabサンプル
 
 
 ## レファレンス

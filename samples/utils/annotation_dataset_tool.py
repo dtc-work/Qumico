@@ -4,11 +4,36 @@ from PIL import Image
 import cv2
 import json
 import xml.etree.ElementTree as ET
-
 class AnnotationDatasetTool:
+    '###分類クラス'
     category_class = ['Bicycle', 'Bus', 'Car', 'Motorbike', 'Pedestrian', 'SVehicle', 'Signal', 'Signs', 'Train',
                       'Truck']
+    '###分類クラスの拡張'
     category_class_extend = ['day', 'morning', 'night']
+    """"""
+    "###初期化"
+    """"""
+    "###引数"
+    """"""
+    "training_flag : bool   学習"
+    "data_list : list   画像の入力データ"
+    "label_list : list  ラベルの入力データ"
+    "repeat : bool   重複の有無"
+    "resize_flag: bool 画像リサイズの有無"
+    "target_h: int  出力画像サイズ(縦)"
+    "target_w: int 出力画像サイズ(横)"
+    "data_rescale: bool 画素値のリスケーリングの有無"
+    "label_resclar ラベルのリスケーリングの有無"
+    "box_format_trans:   現在未使用"
+    "category_class: list  分類クラス"
+    "label_file_type: string  ラベルフィイルのフィイルタイプ"
+    "format: string     画像のフォーマットタイプ"
+    "transformer: bool  HCWHからHWCHに変換"
+    "####training_flag=True の場合　入力データサイズとラベルデータサイズの値をチェックする"
+    "学習データサイズが異なる, 入力データサイズ = {0} ラベルサイズ = {1}のエラーメッセージを表示する"
+
+    "###戻り値"
+    "なし"
 
     def __init__(self, training_flag=False, data_list=None, label_list=None, repeat=False, one_hot_classes=None,
                  resize_flag=False, target_h=None, target_w=None, data_rescale=None, label_resclar=None,
@@ -42,15 +67,18 @@ class AnnotationDatasetTool:
             except AssertionError as err:
                 print("Error : ", err)
 
+
+
+
     def next_batch(self, batch_size):
         """
-        ランダム順にバッチ学習を行う。
-        DatasetToolクラスのインスタンシエーション時に
-        repeat=True設定をしていれば重複あり、repeat=Falseを設定していれば重複なしで、バッチ実行データを選択する。
-        #### 引数
-        - batch_size: バッチサイズ
-        #### 戻り値
-        バッチ実行回数
+            ランダム順にバッチ学習を行う。
+            DatasetToolクラスのインスタンス生成時に
+            repeat=True設定をしていれば重複あり、repeat=Falseを設定していれば重複なしで、バッチ実行データを選択する。
+            #### 引数
+            - batch_size: int  バッチサイズ
+            #### 戻り値
+            バッチ実行回数
         """
         try:
             assert batch_size < self.total_size, "batch_sizeがtotal_batchを超えている。"
@@ -75,11 +103,11 @@ class AnnotationDatasetTool:
 
     def next_batch_once(self, batch_size):
         """
-        あらかじめ決めた順にバッチ学習を行う。
-        #### 引数
-        - batch_size: バッチサイズ
-        #### 戻り値
-        バッチ実行回数
+            あらかじめ決めた順にバッチ学習を行う。
+            #### 引数
+            - batch_size: バッチサイズ
+            #### 戻り値
+            バッチ実行回数
         """
         if len(self.index_list) == 0:
             self.index_reset()
@@ -100,16 +128,28 @@ class AnnotationDatasetTool:
 
     def index_reset(self):
         """
-        バッチ実行リストの初期化を行う。
-        #### 引数
-        なし
-        #### 戻り値
-        なし
+            バッチ実行リストの初期化を行う。
+            #### 引数
+            なし
+            #### 戻り値
+            なし
         """
         self.index_list = list(np.arange(0, self.total_size))
 
     def get_train_batch(self, data_path_list, label_path_list, data_rescale=False, label_rescale=False,
                         one_hot_classes=None):
+        """
+            入力データバッチの取得。
+            #### 引数
+            "data_path_list：　list"　  画像データディレクトリのファイルリスト
+            "label_path_list：　list"  　ラベルディレクトリのファイルリスト
+            "data_rescale: bool 画素値のリスケーリングの有無"
+            "label_resclar ラベルのリスケーリングの有無"
+            "one_hot_classes ： int　　OneHotクラス"
+            #### 戻り値
+            x_train　　入力データ
+            y_train　　ラベルデータ　
+        """
         x_train = []
         y_train = []
         for index, data_path in enumerate(data_path_list):
@@ -150,6 +190,14 @@ class AnnotationDatasetTool:
         return x_train, y_train
 
     def get_infer_batch(self, data_path_list):
+        """
+            入力データバッチの取得。
+            #### 引数
+            "data_path_list:  list"  入力データディレクトリのファイルリスト
+    
+            #### 戻り値
+            x_infer　　画像データ
+        """
         x_infer = []
         for index, data_path in enumerate(data_path_list):
             img_valid, resize_rate_h, resize_rate_w = self.image_generator(data_path, target_h=self.target_h,
@@ -160,17 +208,17 @@ class AnnotationDatasetTool:
     def image_generator(self, full_path, target_h=224, target_w=224, is_opencv=True, format="NHWC",
                         histogram=True):
         """
-        画像の生成を行う。
-        #### 引数
-        - full_path: 入力する画像ファイルのパス
-        - target_h: 出力画像サイズ(縦)
-        - target_w: 出力画像サイズ(横)
-        - rescale: リサイズ
-        - is_opencv: Trueの場合OpenCVから読み込み、Falseの場合画像ファイルから読み込みを行う(default=True)
-        - format: 出力画像tensorのディメンジョン順(default=NHWC: バッチ数/縦/横/チャネル)
-        - histogram: 現在未使用(default=True)
-        #### 戻り値
-        画像データ、リサイズ比率(縦)、リサイズ比率(横)  のリスト
+            画像の生成を行う。
+            #### 引数
+            - full_path: list　入力する画像ファイルのパス
+            - target_h: float　　出力画像サイズ(縦)
+            - target_w: float　　出力画像サイズ(横)
+            - rescale: 　bool　リサイズ
+            - is_opencv:  bool　　Trueの場合OpenCVから読み込み、Falseの場合画像ファイルから読み込みを行う(default=True)
+            - format:  string  出力画像tensorのディメンジョン順(default=NHWC: バッチ数/縦/横/チャネル)
+            - histogram:     現在未使用(default=True)
+            #### 戻り値
+            画像データ、リサイズ比率(縦)、リサイズ比率(横)  のリスト
         """
 
         if is_opencv:
@@ -205,6 +253,19 @@ class AnnotationDatasetTool:
 
     def get_annotation_label(self, full_path, label_file_type=None,
                              resize_rate_h=None, resize_rate_w=None, one_hot_classes=None):
+        """
+            ラベルデータの取得。
+            jsonとxmlの違い
+            #### 引数
+            "full_path": list  入力データディレクトリのファイルリスト
+            "label_file_type": list  　ラベルディレクトリのファイルリスト
+            "resize_rate_h:　　float  出力画像サイズ率(縦)　"　
+            "resize_rate_w:　　float   出力画像リイサイズ率(横)　"　　
+            "one_hot_classes:  int  OneHotクラス"
+            #### 戻り値
+            x_train　　入力データ
+            y_train　　ラベルデータ　
+        """
 
         if label_file_type == "json":
             bbox_classes, day_time = self.get_bbox_json_ext(json_file_path=full_path, resize_rate_h=resize_rate_h,
@@ -224,6 +285,18 @@ class AnnotationDatasetTool:
 
     def get_bbox_json_ext(self, json_file_path, resize_rate_h=None, resize_rate_w=None,
                           one_hot_classes=None):
+
+        """
+            入力データのboounding box作る(ラベルフィイルタイプはjsonの場合)
+            #### 引数
+            - json_file_path: String jsonラベルフィイルのpath
+            - resize_rate_h:  float  出力画像サイズ率(縦)
+            - resize_rate_w:  float   出力画像リイサイズ率(横)
+            - one_hot_classes: int OneHotクラス
+            #### 戻り値
+            学習ラベル、時間（朝、午後、夜）
+        """
+
         with open(json_file_path, encoding="utf-8") as json_file:
             json_data = json.loads(json_file.read())
         classes_truth = []
@@ -256,6 +329,17 @@ class AnnotationDatasetTool:
         return train_label, day_time
 
     def get_bbox_xml_ext(self, xml_file, resize_rate_h, resize_rate_w, one_hot_classes=None):
+        """
+            入力データのbounding box作る(ラベルフィイルタイプはxmlの場合)
+            #### 引数
+            - xml_file: file object   xmlのフィイル
+            - resize_rate_h:  float  出力画像サイズ率(縦)
+            - resize_rate_w:  float   出力画像リイサイズ率(横)
+            - one_hot_classes: int　 OneHotクラス
+            #### 戻り値
+            学習XMLデータ　　
+        """
+
         tree = ET.parse(xml_file)
         root = tree.getroot()
         train_labels = []
@@ -280,7 +364,15 @@ class AnnotationDatasetTool:
             train_labels.append(train_label)
         return train_labels
 
+
     def json_reader(self, json_file_path: str):
+        """
+            入力データのbounding box作る(ラベルフィイルタイプはxmlの場合)
+            #### 引数
+            - json_file_path: string jsonラベルフィイルのpath
+            #### 戻り値
+            学習JSONデータ　　
+        """
         with open(json_file_path, encoding="utf-8") as json_file:
             json_data = json.loads(json_file.read())
         return json_data

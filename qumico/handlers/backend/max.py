@@ -201,7 +201,7 @@ class Max(ArithmeticMixin, BackendHandler):
 
     @classmethod
     def version_6(cls, node, **kwargs):
-        raise NotImplementedError()
+        return cls.instantiate(node, **kwargs)
 
     @classmethod
     def version_8(cls, node, **kwargs):

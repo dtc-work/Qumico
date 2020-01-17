@@ -1,13 +1,15 @@
-import os
+from os import path
 import colorsys
+
+import cv2
 import numpy as np
 import tensorflow as tf
+
 from samples.tiny_yolo_v2.tensorflow.tiny_yolo2_model import TINY_YOLO_v2
 from samples.utils.common_tool import sigmoid
-import cv2
-from samples.utils.box_convert import bbox_to_anbox, anbox_to_bbox
-import samples.utils.pre_process_tool as list_reader
+from samples.utils.box_convert import anbox_to_bbox
 from samples.utils.annotation_dataset_tool import AnnotationDatasetTool
+import samples.utils.pre_process_tool as list_reader
 
 
 voc2007_classes = ['chair', 'bird', 'sofa', 'bicycle', 'cat', 'motorbike', 'bus', 'boat', 'sheep', 'bottle', 'cow',
@@ -112,14 +114,15 @@ def draw(image_bgr, features, classes, labels=None, threshold=0.4, to_draw=True)
             cv2.rectangle(image_bgr_2, (tag[0], tag[1]), (tag[2], tag[3]), (0, 0, 255), 2)
             cv2.putText(image_bgr_2, class_label_true, (int(tag[0]), int(tag[1]) + 10), font, 0.4, (10, 200, 10), 1, cv2.LINE_AA) 
 
+    image_bgr_1 = np.concatenate((image_bgr_1, image_bgr_2))
+
     if to_draw:
-        image_bgr_1 = np.concatenate((image_bgr_1, image_bgr_2))
         cv2.namedWindow("image", cv2.WINDOW_NORMAL)
         cv2.imshow("image", image_bgr_1)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    return res
+    return image_bgr_1
 
 
 def prepare_boxes(feature, anchors, grid_h, grid_w, offset, classes, block_size):
@@ -169,14 +172,13 @@ if __name__ == '__main__':
     # クラスの数　Ont-Hot表現用パラメータ
     num_classes = len(voc2007_classes)
 
-    # データルートパス(絶対パス)を設定する
-    #root_path = "/home/natu/myproj/QumicoDev/samples/tiny_yolo_v2/tensorflow/data/"
-
+    # データルートパスを設定する
+    root_path = path.join(path.dirname(__file__), "data")
     # 画像ファイルフォルダ
-    data_list_path = os.path.join(root_path, "JPEGImages")
+    data_list_path = path.join(root_path, "JPEGImages")
     # タグデータフォルダ（サンプルでは xml に対応しています、
     # 他のデータで学習させたい場合は、utilsフォルダ中のannotation_dataset_toolファイルに読み込むロジックを追加してください。
-    label_list_path = os.path.join(root_path, "Annotations")
+    label_list_path = path.join(root_path, "Annotations")
 
     # infer 画像のid を設定する
     pic_num = 0

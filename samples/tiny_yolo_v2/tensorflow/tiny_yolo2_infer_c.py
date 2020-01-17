@@ -1,8 +1,8 @@
 from os import path
 import ctypes
+
 import cv2
 import numpy as np
-
 
 import samples.utils.pre_process_tool as list_reader
 from samples.tiny_yolo_v2.tensorflow.tiny_yolo2_model import TINY_YOLO_v2
@@ -41,7 +41,7 @@ def infer_c(model, infer_data, c_path, classes, batch_size, to_draw=True):
         dll.qumico(input, output)
         feature = prepare_boxes(output[0], anchors, grid_height, grid_width, offset, classes, block_size)
 
-        return draw(image_data, feature, classes, labels=batch_y[0], threshold=model.threshold, to_draw=to_draw)
+        return draw(image_data, feature, classes, labels=batch_y[0],to_draw=to_draw)
 
 
 if __name__ == '__main__':
@@ -51,14 +51,14 @@ if __name__ == '__main__':
     # クラスの数　Ont-Hot表現用パラメータ
     num_classes = len(voc2007_classes)
 
-    # データルートパス(絶対パス)を設定する
-    root_path = "./data/"
+    # データルートパスを設定する
+    root_path = path.join(path.dirname(__file__), "data")
 
     # 画像ファイルフォルダ
-    data_list_path = root_path + "JPEGImages"
+    data_list_path = path.join(root_path, "JPEGImages")
     # タグデータフォルダ（サンプルでは xml に対応しています、
     # 他のデータで学習させたい場合は、utilsフォルダ中のannotation_dataset_toolファイルに読み込むロジックを追加してください。
-    label_list_path = root_path + "Annotations"
+    label_list_path = path.join(root_path, "Annotations")
 
     # infer 画像のid を設定する
     pic_num = 0
@@ -78,5 +78,4 @@ if __name__ == '__main__':
     # print(tiny_yolo2_model.threshold)
 
     # model weights path
-    ckpt_file = "model/tiny_yolo2.ckpt"
     infer_c(tiny_yolo2_model, annotation_dataset_tool, c_path, voc2007_classes, batch_size)

@@ -2,6 +2,12 @@
 GCP AutoML Vision(分類)で学習したモデルをCソースに変換し、RaspberryPiで動作させることができます。  
 このサンプルでは、犬・猫を分類するモデルを含んでいます。
 
+以下の環境でデモの動作を確認しています。
+- Raspberry Pi 3 Model B
+- Raspbian、Buster GNU/Linux 10.1
+- python3-opencv 3.2.0+dfsg-6
+- libopencv-core3.2 3.2.0+dfsg-6
+
 ## フォルダ構成
 ルートフォルダ: samples/automl_dogcat/tensorflow/
 

@@ -619,6 +619,10 @@ class MaxPool(BackendHandler):
 
 
     @classmethod
+    def version_1(cls, node, **kwargs):
+        return cls.instantiate(node, **kwargs)
+
+    @classmethod
     def version_8(cls, node, **kwargs):
         return cls.instantiate(node, **kwargs)
 

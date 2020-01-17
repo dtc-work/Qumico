@@ -1,63 +1,23 @@
 import tensorflow as tf
 import numpy as np
-from copy import deepcopy
 import samples.utils.tensorflow_ext as tf_helper
-
-
-
-def residual_block(x, filter=None, format="NHWC", name="residual_block", batch_normalization=True,
-                   layer_list=None):
-    """
-    :param x: input tensor
-    :param filter: first conv2d layer filter size. if None, it will be a half of the input tensor channel size.
-    :param format: "NHWC" for channel last and "NCHW" for channel first. default is 'NHWC'
-    :param name:
-    :param batch_normalization:
-    :param layer_list:
-    :return:
-    """
-    with tf.name_scope(name) as scope:
-        x = tf.convert_to_tensor(x)
-        shortcut = x
-        input_shape = x.get_shape()
-        N, H, W, C = (0, 0, 0, 0)
-        if format == "NHWC":
-            N, H, W, C = input_shape[0].value, input_shape[1].value, input_shape[2].value, input_shape[3].value
-        elif format == "NCHW":
-            N, C, H, W = input_shape[0].value, input_shape[1].value, input_shape[2].value, input_shape[3].value
-
-        filter_1 = filter if filter is not None else int(C / 2)
-        filter_2 = C
-
-        block_conv_1 = tf_helper.add_conv2d(x, filter_1, h_kernel=1, w_kernel=1, name="layer_1", h_stride=1,
-                                            w_stride=1, format=format, batch_normalization=batch_normalization,
-                                            activation="leaky_relu", leaky_relu_alpha=0.1, padding="SAME")
-        print("conv_residual : ", block_conv_1.shape)
-        block_conv_2 = tf_helper.add_conv2d(block_conv_1, filter_2, h_kernel=3, w_kernel=3, name="layer_2",
-                                            h_stride=1,
-                                            w_stride=1, format=format, batch_normalization=batch_normalization,
-                                            activation="leaky_relu", leaky_relu_alpha=0.1, padding="SAME")
-        print("conv_residual : ", block_conv_2.shape)
-        y = tf_helper.add_shortcut(block_conv_2, shortcut, name=scope)
-        print("shortcut : ", y.shape)
-        if layer_list is not None:
-            layer_list.append(block_conv_1)
-            layer_list.append(block_conv_2)
-        return y
 
 
 def conv2d_before_residual(x, filter=None, format="NHWC", name="conv_before_residual",
                            batch_normalization=True,
                            layer_list=None):
     """
+      　conv2d_before_residual
+        ### 引数
+        x: 　object　　　入力Tensor　
+        filter： string   　最初のconv2dレイヤーフィルターサイズ。 Noneの場合、入力テンソルチャネルサイズの半分になる。　　　　
+        format:　string　"NHWC"(チャネル先)and "NCHW" for チャネル最後. default は 'NHWC'
+        name:  string  名前  デフォルトはconv_before_residual
+        batch_normalization: boolean  batch_normalization:するがどうか
+        layer_list: list　存在する場合、戻り値追加する
+        ### 戻り値
+        y: object「tensor」。 変換したtensor
 
-    :param x:
-    :param filter:
-    :param format:
-    :param name:
-    :param batch_normalization:
-    :param layer_list:
-    :return:
     """
     with tf.name_scope(name) as scope:
         x = tf.convert_to_tensor(x)
@@ -82,15 +42,20 @@ def conv2d_before_residual(x, filter=None, format="NHWC", name="conv_before_resi
 def conv2d_input(x, filter=32, format="NHWC", name="conv_input", batch_normalization=True,
                  layer_list=None):
     """
+      　conv2d_input
+        ### 引数
+        x: 　object　　　入力Tensor　
+        filter： string   　最初のconv2dレイヤーフィルターサイズ。 
+        　　　　　　　　　Noneの場合、入力テンソルチャネルサイズの半分になる。　　　　
+        format:　string　"NHWC"(チャネル先)and "NCHW" for チャネル最後. default は 'NHWC'
+        name:  string 名前  デフォルトはconv_input
+        batch_normalization: boolean  batch_normalization:するがどうか
+        layer_list: list　存在する場合戻り値追加する
+        ### 戻り値
+        y: object「tensor」。 変換したtensor
 
-    :param x:
-    :param filter:
-    :param format:
-    :param name:
-    :param batch_normalization:
-    :param layer_list:
-    :return:
     """
+
     with tf.name_scope(name) as scope:
         x = tf.convert_to_tensor(x)
         input_shape = x.get_shape()
@@ -113,14 +78,17 @@ def conv2d_input(x, filter=32, format="NHWC", name="conv_input", batch_normaliza
 def conv2d_1x1_down(x, filter=None, format="NHWC", name="conv_1x1_down", batch_normalization=True,
                     layer_list=None):
     """
+      　conv2d_1x1_down
+        ### 引数
+        x: 　object　　　入力Tensor　
+        filter： string   　最初のconv2dレイヤーフィルターサイズ。 Noneの場合、入力テンソルチャネルサイズの半分になります。　　　　
+        format:　string 　"NHWC"(チャネル先)and "NCHW" for チャネル最後. default は 'NHWC'
+        name:  string 名前  デフォルトはconv_1x1_down
+        batch_normalization: boolean  batch_normalization:するがどうか
+        layer_list:　list 存在する場合戻り値追加する
+        ### 戻り値
+        y: object「tensor」。 変換したtensor
 
-    :param x:
-    :param filter:
-    :param format:
-    :param name:
-    :param batch_normalization:
-    :param layer_list:
-    :return:
     """
     with tf.name_scope(name) as scope:
         x = tf.convert_to_tensor(x)
@@ -144,15 +112,19 @@ def conv2d_1x1_down(x, filter=None, format="NHWC", name="conv_1x1_down", batch_n
 
 def conv2d_1x1_up(x, filter=None, format="NHWC", name="conv_1x1_up", batch_normalization=True,
                   layer_list=None):
-    """
 
-    :param x:
-    :param filter:
-    :param format:
-    :param name:
-    :param batch_normalization:
-    :param layer_list:
-    :return:
+    """
+      　conv2d_1x1_up
+        ### 引数
+        x: 　object　　　入力Tensor　
+        filter： string   　最初のconv2dレイヤーフィルターサイズ。 Noneの場合、入力テンソルチャネルサイズの半分になる。　　　　
+        format:　string　"NHWC"(チャネル先)and "NCHW" for チャネル最後. default は 'NHWC'
+        name:  string  名前  デフォルトはconv_1x1_down
+        batch_normalization: boolean  batch_normalizationするがどうか
+        layer_list: list　存在する場合戻り値追加する
+        ### 戻り値
+        y: object「tensor」。 変換したtensor
+
     """
     with tf.name_scope(name) as scope:
         x = tf.convert_to_tensor(x)
@@ -177,15 +149,19 @@ def conv2d_1x1_up(x, filter=None, format="NHWC", name="conv_1x1_up", batch_norma
 def conv2d_3x3_down(x, filter=None, format="NHWC", name="conv_3x3_down", batch_normalization=True,
                     layer_list=None):
     """
+  　conv2d_3x3_down
+    ### 引数
+    x: 　object　　　入力Tensor　
+    filter： string   　最初のconv2dレイヤーフィルターサイズ。 Noneの場合、入力テンソルチャネルサイズの半分になります。　　　　
+    format:　string　"NHWC"(チャネル先)and "NCHW" for チャネル最後. default は 'NHWC'
+    name:  string  名前  デフォルトはconv_3x3_down
+    batch_normalization: boolean  batch_normalizationするがどうか
+    layer_list: list　存在する場合戻り値追加する
+    ### 戻り値
+    y: object「tensor」。 変換したtensor
 
-    :param x:
-    :param filter:
-    :param format:
-    :param name:
-    :param batch_normalization:
-    :param layer_list:
-    :return:
     """
+
     with tf.name_scope(name) as scope:
         x = tf.convert_to_tensor(x)
         input_shape = x.get_shape()
@@ -209,15 +185,19 @@ def conv2d_3x3_down(x, filter=None, format="NHWC", name="conv_3x3_down", batch_n
 def conv2d_3x3_up(x, filter=None, format="NHWC", name="conv_1x1_up", batch_normalization=True,
                   layer_list=None):
     """
+      　conv2d_3x3_up
+        ### 引数
+        x: 　object　　　入力Tensor　
+        filter： string   　最初のconv2dレイヤーフィルターサイズ。 Noneの場合、入力テンソルチャネルサイズの半分になります。　　　　
+        format:　string 　"NHWC"(チャネル先)and "NCHW" for チャネル最後. default は 'NHWC'
+        name: string   名前　デフォルトはconv_1x1_up
+        batch_normalization: boolean  batch_normalizationするがどうか
+        layer_list:　list　存在する場合戻り値追加する
+        ### 戻り値
+        y object「tensor」。 変換したtensor
 
-    :param x:
-    :param filter:
-    :param format:
-    :param name:
-    :param batch_normalization:
-    :param layer_list:
-    :return:
     """
+
     with tf.name_scope(name) as scope:
         x = tf.convert_to_tensor(x)
         input_shape = x.get_shape()
@@ -241,14 +221,16 @@ def conv2d_3x3_up(x, filter=None, format="NHWC", name="conv_1x1_up", batch_norma
 def feature_out(x, classes_num, format="NHWC", name="feature_out", batch_normalization=True,
                 layer_list=None):
     """
-
-    :param x:
-    :param classes_num:
-    :param format:
-    :param name:
-    :param batch_normalization:
-    :param layer_list:
-    :return:
+        feature_out
+        ### 引数
+        x: 　object　　　入力Tensor　
+        filter： string   　最初のconv2dレイヤーフィルターサイズ。 Noneの場合、入力テンソルチャネルサイズの半分になる。　　　　
+        format:　string　"NHWC"(チャネル先)and "NCHW" for チャネル最後. default は 'NHWC'
+        name:　string   名前デフォルトはfeature_out
+        batch_normalization: boolean  batch_normalizationするがどうか
+        layer_list: list 存在する場合戻り値追加する
+        ### 戻り値
+        feature　: object「tensor」。 変換したtensor
     """
 
     with tf.name_scope(name) as scope:
@@ -272,21 +254,24 @@ def feature_out(x, classes_num, format="NHWC", name="feature_out", batch_normali
 
 def up_sampling2d(x, format="NHWC", name="up_sampling",
                   layer_list=None):
+
+    """
+      　up_sampling2d
+        ### 引数
+        x: 　object　　　入力Tensor　
+        format:　string　"NHWC"(チャネル先)and "NCHW" for チャネル最後. default は 'NHWC'
+        name:  string 名前デフォルトはup_sampling
+        layer_list: list　存在する場合戻り値追加する
+        ### 戻り値
+        y object「tensor」。 変換したtensor
     """
 
-    :param x:
-    :param format:
-    :param name:
-    :param layer_list:
-    :return:
-    """
     with tf.name_scope(name) as scope:
         x = tf.convert_to_tensor(x)
         input_shape = x.get_shape()
         if format == "NHWC":
             N, H, W, C = input_shape[0].value, input_shape[1].value, input_shape[2].value, input_shape[3].value
             x = tf.image.resize_images(x, [H * 2, W * 2], method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
-
         elif format == "NCHW":
             N, C, H, W = input_shape[0].value, input_shape[1].value, input_shape[2].value, input_shape[3].value
             x = tf.transpose(x, perm=[0, 2, 3, 1])
@@ -301,15 +286,18 @@ def up_sampling2d(x, format="NHWC", name="up_sampling",
 
 def route2d(x, sub_tensor=None, route_dim=3, format="NHWC", name="route", layer_list=None):
     """
-
-    :param x:
-    :param sub_tensor:
-    :param route_dim:
-    :param format:
-    :param name:
-    :param layer_list:
-    :return:
+      　route2d
+        ### 引数
+        x: 　object　　　入力Tensor　
+        sub_tensor: string  存在する場合tensorを連結する
+        route_dim: object    `0-D `int32`` Tensor`。連結するtensor。
+        format:　string　"NHWC"(チャネル先) and "NCHW" for チャネル最後. default は 'NHWC'
+        name: string 名前デフォルトはroute
+        layer_list: list　存在する場合戻り値追加する
+        ### 戻り値
+        y object「tensor」。 変換したtensor
     """
+
     with tf.name_scope(name) as scope:
         x = tf.convert_to_tensor(x)
         input_shape = x.get_shape()
@@ -328,16 +316,21 @@ def route2d(x, sub_tensor=None, route_dim=3, format="NHWC", name="route", layer_
 
 def conv2d_5l_block(x, filter=None, format="NHWC", name="conv_5l", batch_normalization=True,
                     layer_list=None):
+
+    """
+      　conv2d_5l_block
+        ### 引数
+        x: 　object　　　入力Tensor　
+        sub_tensor: string  存在する場合tensorを連結する
+        route_dim: object    `0-D `int32`` Tensor`。連結するtensor。
+        format:　string  　"NHWC"(チャネル先) and "NCHW" for チャネル最後. default は 'NHWC'
+        name:     string  名前
+        batch_normalization:　string  Trueまたfalse
+        layer_list:　list   存在する場合block_conv_1から5まで追加する
+        ### 戻り値
+        y object「tensor」。 変換したtensor
     """
 
-    :param x:
-    :param filter:
-    :param format:
-    :param name:
-    :param batch_normalization:
-    :param layer_list:
-    :return:
-    """
     with tf.name_scope(name) as scope:
         x = tf.convert_to_tensor(x)
         input_shape = x.get_shape()
@@ -393,6 +386,15 @@ def conv2d_5l_block(x, filter=None, format="NHWC", name="conv_5l", batch_normali
 
 
 def pooling2x(x, format="NHWC", name="maxpooling", layer_list=None):
+    """
+          　pooling2x
+            ### 引数
+            x: 　object　　　入力Tensor　
+            format:　string　"NHWC"(チャネル先) and "NCHW" for チャネル最後. default は 'NHWC'
+            name::  string 名前　デフォルトはmaxpooling
+            ### 戻り値
+            pool_layer　「tensor」。　最大プール出力テンソル　
+        """
     with tf.name_scope(name) as scope:
         x = tf.convert_to_tensor(x)
         input_shape = x.get_shape()
@@ -407,6 +409,26 @@ def pooling2x(x, format="NHWC", name="maxpooling", layer_list=None):
 
 def darknetconv2d(x, output_size, h_kernel, w_kernel, name, h_stride=1, w_stride=1, padding="SAME",
                   activation="relu", leaky_relu_alpha=0.1, format="NCHW", batch_normalization=False, training=True):
+    """
+      　darknetconv2d
+        ### 引数
+        x: 　object　　タイプ `Tensor`として登録された変換関数を持つオブジェクト。　
+        output_size: int        weight_variableの出力サイズ        　　　　
+        h_kernel:　 int　　      tensorのh_kernel　　　             　
+        w_kernel： int  　       tensorのw_kernel
+        name:　string  名前
+        h_stride：  int　 strideのh_stride(モデルのheightとgridのweightの比)　
+        w_stride：  int   strideのw_stride(モデルのweightとgridのweightの比)
+        　(stride: `ints`のリスト。
+          長さ1の1次元テンソル。それぞれのスライディングウィンドウの歩幅
+          「入力」の次元。次元の順序は、次の値によって決定されます
+          `data_format`。。)
+        padding：　'String'   パディングアルゴリズムのタイプ
+        format:　　"NHWC"(チャネル先) and "NCHW" for チャネル最後. default は 'NHWC'
+        ### 戻り値
+        z: object「tensor」。 `features`と同じ型を持る
+    """
+
     x = tf.convert_to_tensor(x)
     if format == "NHWC":
         input_size = x.get_shape()[-1].value
@@ -439,6 +461,26 @@ def darknetconv2d(x, output_size, h_kernel, w_kernel, name, h_stride=1, w_stride
 
 
 def darknetpool(x, name, h_kernel=2, w_kernel=2, h_stride=2, w_stride=2, padding="SAME", format="NCHW"):
+
+    """
+      　darknetpool
+        ### 引数
+        input: 　object　　タイプ `Tensor`として登録された変換関数を持つオブジェクト。　
+        output_size: int        weight_variableの出力サイズ        　　　　
+        h_kernel:　 int　　      tensorのh_kernel　　　             　
+        w_kernel： int  　       tensorのw_kernel
+        h_stride：  int　 strideのh_stride　
+        w_stride：  int   strideのw_stride
+        　(stride: `ints`のリスト。
+          長さ1の1次元テンソル。それぞれのスライディングウィンドウの歩幅
+          「入力」の次元。次元の順序は、次の値によって決定されます
+          `data_format`。。)
+        padding：　'String'   パディングアルゴリズムのタイプ
+        format:　　"NHWC"(チャネル先) and "NCHW" for チャネル最後. default は 'NHWC'
+        ### 戻り値
+        z: object「tensor」。 `features`と同じ型を持る
+    """
+
     if format == "NCHW":
         ksize = [1, 1, h_kernel, w_kernel]
         strides = [1, 1, h_stride, w_stride]
@@ -453,6 +495,21 @@ def darknetpool(x, name, h_kernel=2, w_kernel=2, h_stride=2, w_stride=2, padding
 
 
 def reorg_layer(feature_out_layer, num_classes, anchors, model_h, model_w):
+    """
+      　reorg_layer
+        ### 引数
+        feature_out_layer:　　tensor
+        num_classes: 　object　　タイプ `Tensor`として登録された変換関数を持つオブジェクト。　
+        anchors: int    アンカーボックス     　 　　　　
+        model_h:　 int　モデルのheight　      　     　
+        model_w： int  モデルのweight　       　
+        ### 戻り値
+        boxes:   tensor　戻るボックス
+        feature_conf:    オブジェクトクラスの確信率 　
+        feature_class: 　アンカーボックスで判別するオブジェクトのクラス
+        xy_offset:　　アンカーボックスとgridのoffset
+    """
+
     x = tf.convert_to_tensor(feature_out_layer)
     input_shape = x.get_shape()
 
@@ -479,6 +536,14 @@ def reorg_layer(feature_out_layer, num_classes, anchors, model_h, model_w):
 
 
 def get_offset_xy(grid_w, grid_h):
+    """
+      　get_offset_xy
+        ### 引数
+        grid_w    TensorShapeのgrid_w
+        grid_h　   TensorShapeのgrid_h
+        ### 戻り値
+        x_y_offset: numpy_array   offsetしたnumpy array
+    """
     grid_x = np.arange(grid_w)
     grid_y = np.arange(grid_h)
     x, y = np.meshgrid(grid_x, grid_y)
@@ -489,6 +554,15 @@ def get_offset_xy(grid_w, grid_h):
     return x_y_offset
 
 def get_offset_yx(grid_h, grid_w):
+    """
+      　get_offset_yx
+        ### 引数
+        grid_w    TensorShapeのgrid_w
+        grid_h　   TensorShapeのgrid_h
+        ### 戻り値
+        x_y_offset: numpy_array   offsetしたnumpy array
+    """
+
     grid_x = np.arange(grid_w)
     grid_y = np.arange(grid_h)
     x, y = np.meshgrid(grid_y, grid_x)
@@ -499,33 +573,25 @@ def get_offset_yx(grid_h, grid_w):
     return x_y_offset
 
 
-def bbox_to_anbox(bbox):
-    anbox = deepcopy(bbox)
-    anbox[..., 0] = (bbox[..., 0] + bbox[..., 2]) / 2
-    anbox[..., 1] = (bbox[..., 1] + bbox[..., 3]) / 2
-    anbox[..., 2] = bbox[..., 2] - bbox[..., 0]
-    anbox[..., 3] = bbox[..., 3] - bbox[..., 1]
-    return anbox
-
-
-def anbox_to_bbox(anbox):
-    bbox = deepcopy(anbox)
-    bbox[..., 0] = anbox[..., 0] - anbox[..., 2] / 2
-    bbox[..., 2] = anbox[..., 0] + anbox[..., 2] / 2
-    bbox[..., 1] = anbox[..., 1] - anbox[..., 3] / 2
-    bbox[..., 3] = anbox[..., 1] + anbox[..., 3] / 2
-    return bbox
 
 
 def extract_feature(feature_map, num_classes, anchors, model_h=None, model_w=None):
+    """
+      　extract_feature
+        ### 引数
+        feature_map:　tensor　
+        num_classes: 　object　　タイプ `Tensor`として登録された変換関数を持つオブジェクト。　
+        anchors: int       アンカーボックス         　 　　　　
+        model_h:　 int　　 モデルのheigh
+        model_w： int  　  モデルのweight     　
+        ### 戻り値
+        boxes:   tensor　戻るボックス
+        feature_conf:    オブジェクトクラスの確信率 　
+        feature_class: 　アンカーボックスで判別するオブジェクトのクラス
+        xy_offset:　　アンカーボックスとgridのoffset
+    """
     feature_map = tf.transpose(feature_map, [0, 2, 1, 3])
-
-    print(anchors)
-
     boxes, feature_conf, feature_class, xy_offset = reorg_layer(feature_map, num_classes, anchors, model_h,
                                                                 model_w)
 
-    print(type(boxes), boxes)
-    print(type(feature_conf), feature_conf)
-    print(type(feature_class), feature_class)
     return boxes, feature_conf, feature_class, xy_offset

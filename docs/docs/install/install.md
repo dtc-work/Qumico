@@ -13,7 +13,7 @@ $ pip3 install [インストールするpython3ライブラリ]
 ```
  onnx==1.5.0
  tf2onnx==1.5.1
- tensorflow>=1.13, <2.0
+ tensorflow==1.13.2
  Keras
  numpy
  pillow

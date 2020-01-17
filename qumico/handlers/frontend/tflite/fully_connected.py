@@ -209,11 +209,11 @@ class FULLY_CONNECTED(TFLiteBaseHandler):
                                                     (1,), output0_zero_point))
 
         # node
-        transpose_perm = list(range(len(input_buffers[1])))[::-1]
+#         transpose_perm = list(range(len(input_buffers[1])))[::-1]
         node.onnx_nodes.append(helper.make_node('Transpose',
                                                 inputs=[inputs[1].name],
                                                 outputs=[input1_transpose_node_name],
-                                                perm=transpose_perm))
+                                                perm=[1, 0]))
         if bias:
             node.onnx_nodes.append(helper.make_node('QLinearMatMul',
                                                     inputs=[inputs[0].name, input0_x_scale, input0_x_zero_point,
