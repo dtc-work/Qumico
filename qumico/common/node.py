@@ -29,7 +29,7 @@ class QumicoNode(pb_wrapper.OnnxNode):
         self.__class__.GEN_NODE_PARAM_NAME +=1 # count up
 
         field_values = OrderedDict()
-        for i in map(lambda s:QumicoNode.valid_var_name(s), self.inputs):
+        for i in map(lambda s:QumicoNode.valid_var_name(s),filter(lambda s:not len(s)==0, self.inputs)):
             input_val =np.expand_dims(inputs[i],0) if inputs[i].ndim ==0 else inputs[i]
             field_values.update({i: input_val})
 

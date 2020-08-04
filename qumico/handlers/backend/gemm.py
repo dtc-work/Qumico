@@ -101,7 +101,7 @@ class Gemm(BackendHandler):
             int transA = {transA};  //param_ptr->transA;
             int transB = {transB};  //param_ptr->transB;
 
-            {t}  *_C = C;
+            {t}  *_C = ({t} *)(C);
             int   A_m;
             int   A_k;
             int   B_k;

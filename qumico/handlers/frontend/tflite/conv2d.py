@@ -1,5 +1,6 @@
 from onnx import helper, TensorProto
 from onnx.mapping import NP_TYPE_TO_TENSOR_TYPE
+import numpy as np
 
 from qumico.handlers.frontend.tflitehandler import TFLiteBaseHandler
 from qumico.handlers.frontend.tflite.tflite_decorator import tflite_op_conf
@@ -27,6 +28,7 @@ class CONV_2D(TFLiteBaseHandler):
         input_names = [i.name for i in inputs]
         output_names = [o.name for o in outputs]
         kernel_shape = inputs[1].shape[1:3]
+        operator_idx = kwargs.get("operator_idx")
 
         strides = [ops_option.stride_h, ops_option.stride_w]
         dilations = [ops_option.dilation_h_factor, ops_option.dilation_w_factor]
@@ -41,15 +43,15 @@ class CONV_2D(TFLiteBaseHandler):
         input0_name = input_names[0]
         input1_name = input_names[1]
         input2_name = input_names[2] if bias else None
-        input0_transpose_node_name = create_property_name(input_names[0], "Input0Transpose")
+        input0_transpose_node_name = create_property_name(input_names[0] + "_" + str(operator_idx), "Input0Transpose")
         output0_transpose_node_name = create_property_name(output_names[0], "Output0Transpose")
         output0_name = output_names[0]
 
         # todo: check quant
         # input quant
         if inputs[0].quantization is not None:
-            input0_x_scale = create_property_name(input_names[0], "x_scale")
-            input0_x_zero_point = create_property_name(input_names[0], "x_zero_point")
+            input0_x_scale = create_property_name(input_names[0] + "_" + str(operator_idx), "x_scale")
+            input0_x_zero_point = create_property_name(input_names[0] + "_" + str(operator_idx), "x_zero_point")
 
             input0_scale = inputs[0].quantization.scale
             input0_zero_point = inputs[0].quantization.zero_point
@@ -154,7 +156,14 @@ class CONV_2D(TFLiteBaseHandler):
 
         # bias
         if bias:
-            node.onnx_tensors.append(helper.make_tensor(input2_name,
+#            if inputs[2].quantization is not None:
+#                scaled_bias = (input_buffers[2] * inputs[2].quantization.scale).astype(np.int64)
+#                node.onnx_tensors.append(helper.make_tensor(input2_name,
+#                                                        NP_TYPE_TO_TENSOR_TYPE[inputs[2].np_tensor_type],
+#                                                        inputs[2].shape,
+#                                                        scaled_bias))
+#            else:
+                node.onnx_tensors.append(helper.make_tensor(input2_name,
                                                         NP_TYPE_TO_TENSOR_TYPE[inputs[2].np_tensor_type],
                                                         inputs[2].shape,
                                                         input_buffers[2]))

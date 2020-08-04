@@ -185,15 +185,29 @@ class TFLiteFrontend(BaseFrontend):
         onnx_graph_name = self._model_name
 
         # graph input& output
-        input_node_index = tflite_model.subgraphs.inputs[0]
-        output_node_index = tflite_model.subgraphs.outputs[0]
+        input_node_indices = tflite_model.subgraphs.inputs
+        output_node_indices = tflite_model.subgraphs.outputs
 
-        onnx_graph_input = self._create_value_info(tflite_tensors[input_node_index])
-        onnx_graph_output = self._create_value_info(tflite_tensors[output_node_index])
+        onnx_graph_inputs = [self._create_value_info(tflite_tensors[index]) for index in input_node_indices]
+
+
+        onnx_graph_outputs = [self._create_value_info(tflite_tensors[index]) for index in output_node_indices]
+#        onnx_graph_outputs = [helper.make_tensor_value_info(name=tflite_tensors[output_node_indices[0]].name,
+#                                             elem_type=mapping.NP_TYPE_TO_TENSOR_TYPE[TFLITE_TENSOR_TYPE_TO_NP_TYPE[tflite_tensors[output_node_indices[0]].tensor_type]],
+#                                             shape=(1,20,4)),
+#                            helper.make_tensor_value_info(name=tflite_tensors[output_node_indices[1]].name,
+#                                             elem_type=mapping.NP_TYPE_TO_TENSOR_TYPE[TFLITE_TENSOR_TYPE_TO_NP_TYPE[tflite_tensors[output_node_indices[1]].tensor_type]],
+#                                             shape=(20,1)),
+#                            helper.make_tensor_value_info(name=tflite_tensors[output_node_indices[2]].name,
+#                                             elem_type=mapping.NP_TYPE_TO_TENSOR_TYPE[TFLITE_TENSOR_TYPE_TO_NP_TYPE[tflite_tensors[output_node_indices[2]].tensor_type]],
+#                                             shape=(20,1)),
+#                            helper.make_tensor_value_info(name=tflite_tensors[output_node_indices[3]].name,
+#                                             elem_type=mapping.NP_TYPE_TO_TENSOR_TYPE[TFLITE_TENSOR_TYPE_TO_NP_TYPE[tflite_tensors[output_node_indices[3]].tensor_type]],
+#                                             shape=(1,))]
 
         nodes = []
 
-        for o in tflite_model.subgraphs.operators:  #
+        for (i,o) in enumerate(tflite_model.subgraphs.operators):  #
 
             # todo: op & version adaptive
             op_type_name = operator_codes[o.opcode_index].builtin_code
@@ -208,6 +222,7 @@ class TFLiteFrontend(BaseFrontend):
 
             if hasattr(ops[op_type_name], "TFLITE_OP") and ops[op_type_name].TFLITE_OP == op_type_name:
                 nodes.append(ops[op_type_name].create_onnx_node(operator=o,
+                                                                operator_idx=i,
                                                                 inputs=tflite_input_tensors,
                                                                 outputs=tflite_output_tensors,
                                                                 input_buffers=tflite_input_buffers,
@@ -226,8 +241,16 @@ class TFLiteFrontend(BaseFrontend):
                 # print(getattr(n, "version_1", None))
 
         # graph value_info
+        output_value_info_list = []
         graph_value_info = []
-        register_names = [onnx_graph_input.name, onnx_graph_output.name]
+        output_scalar_names = []
+        register_names = [input.name for input in onnx_graph_inputs]
+        #register_names.extend([output.name for output in onnx_graph_outputs])
+        for index in output_node_indices:
+            if (tflite_tensors[index].shape != []):
+                register_names.append(tflite_tensors[index].name)
+            else:
+                output_scalar_names.append(tflite_tensors[index].name)
 
         for n in nodes:
             for value_info in n.onnx_value_infos:
@@ -236,12 +259,20 @@ class TFLiteFrontend(BaseFrontend):
                 register_names.append(value_info.name)
                 checker.check_value_info(value_info)
                 graph_value_info.append(value_info)
+                if value_info.name in output_scalar_names:
+                    output_value_info_list.append(value_info)
+
+        # remake output value info
+        for index in output_node_indices:
+            if (tflite_tensors[index].shape != []):
+                output_value_info_list.append(self._create_value_info(tflite_tensors[index]))
+        onnx_graph_outputs = output_value_info_list
 
         onnx_tensors = self._create_onnx_tensor(nodes)
         graph = self._create_onnx_graph(nodes=onnx_nodes,
                                         name=onnx_graph_name,
-                                        inputs=[onnx_graph_input],
-                                        outputs=[onnx_graph_output],
+                                        inputs=onnx_graph_inputs,
+                                        outputs=onnx_graph_outputs,
                                         initializer=onnx_tensors,
                                         doc_string=tflite_model.description,
                                         value_info=graph_value_info)

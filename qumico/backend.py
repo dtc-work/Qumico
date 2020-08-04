@@ -68,11 +68,16 @@ class QumicoBackend(Backend):
         # input_dict = dict(input_dict_items)
         nodes=[]
 
-        o = value_info_converter.conv(graph_def.output[0])
+
         prev = None
+        outputs_info = []
+
+        for go in graph_def.output:
+            o = value_info_converter.conv(go)
+            outputs_info.append((o.dtype, o.shape))
 
         for node in graph_def.node:
-            onnx_node = QumicoNode(node,inputs=tensor_dict, opset=opset, outputs_info=(o.dtype, o.shape), device=device)
+            onnx_node = QumicoNode(node,inputs=tensor_dict, opset=opset, outputs_info=outputs_info, device=device)
             tensor_dict.update(onnx_node.op.output_tensor._asdict())
             if optimize is not None:
                 if optimizer.FusePrevTranspose in optimize.options:
@@ -80,7 +85,6 @@ class QumicoBackend(Backend):
                         fuseOp = optimizer.FusePrevTranspose(prev, onnx_node)
                         del nodes[-1]                    
                         onnx_node.conv_optimize_op(fuseOp)
-                    
             nodes.append(onnx_node)
             prev= onnx_node
 

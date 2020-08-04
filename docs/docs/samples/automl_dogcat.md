@@ -3,6 +3,7 @@ GCP AutoML Vision(分類)で学習したモデルをCソースに変換し、Ras
 このサンプルでは、犬・猫を分類するモデルを含んでいます。
 
 以下の環境でデモの動作を確認しています。
+
 - Raspberry Pi 3 Model B
 - Raspbian、Buster GNU/Linux 10.1
 - python3-opencv 3.2.0+dfsg-6
@@ -24,9 +25,9 @@ GCP AutoML Vision(分類)で学習したモデルをCソースに変換し、Ras
 - gen_c_rpi.py: ONNX形式モデルからCソースを生成するスクリプト(※RaspberryPi向け)
 
 
-## モデルの格納
+## モデルの保存
 GCP AutoML Vision(分類)で学習した後、エッジデバイス向けにGCPから取得します。  
-このサンプルでは、犬・猫分類のモデルを以下に格納済みです。  
+このサンプルでは、犬・猫分類のモデルを以下に保存済みです。  
 
 `samples/automl_dogcat/tensorflow/`  
 
@@ -104,14 +105,19 @@ finish
 python3 gen_c_rpi.py 
 ```
 
-その後、以下のフォルダをRaspberryPi上の任意のフォルダへ移植する。  
+このように表示されればCソースの生成は成功です。
+```
+Cソースを生成しました。出力先: out_c
+```
+
+その後、以下のフォルダをRaspberryPi上の任意のフォルダへコピーする。  
 
 `samples/automl_dogcat/tensorflow/`
 
 以下操作をRaspberryPi上で実施します。
 
 1. ビルド  
-RaspberryPiへの移植先フォルダに移動し、build-rpi.pyを実行する。  
+RaspberryPiへのコピー先フォルダに移動し、build-rpi.pyを実行する。  
 out_cフォルダに共有ライブラリとして、qumico.soが生成される。  
 
 2. デモ  
@@ -122,12 +128,15 @@ demo.pyを実行する。
 ## 別モデルの利用手順
 このサンプル構成を利用し、別モデルを利用する場合の手順をまとめます。
 
-1.GCP AutoML Vision(分類)で学習したモデルを格納する  
-　格納先: samples/automl_dogcat/tensorflow/model  
-　GCPから取得されるファイルすべてを格納する。  
+1.GCP AutoML Vision(分類)で学習したモデルを保存する  
+　保存先: samples/automl_dogcat/tensorflow/model  
+　GCPから取得されるファイルすべてを保存する。  
 　・dict.txt  
 　・metadata.json  
 　・model.tflite  
+
+  GCPからダウンロードすると、model-export_icn_tflite-dog_cat_20191212110041-2019-12-12T06_46_38.760Z_tflite_metadata.json のように長い名前になります。
+  ファイル名の前の部分を削除して、上に記載したファイル名へ修正してください。
 
 2.automl_tflite_to_onnx.pyを実行する  
 　以下にONNXファイルが生成される。  
@@ -140,23 +149,23 @@ demo.pyを実行する。
 　以下にCソースが生成される。  
 　samples/automl_dogcat/tensorflow/out_c  
 
-4.ソースをRaspberryPiへ移植する  
-　以下のフォルダごとRaspberryPiへ移植する。  
+4.ソースをRaspberryPiへコピーする  
+　以下のフォルダごとRaspberryPiへコピーする。  
 　samples/automl_dogcat/tensorflow/
 
 5.ビルド  
-　RaspberryPiへの移植先フォルダに移動し、build-rpi.pyを実行する。  
+　RaspberryPiへのコピー先フォルダに移動し、build-rpi.pyを実行する。  
 　out_cフォルダに共有ライブラリとして、qumico.soが生成される。  
 
 6.デモ  
 　demo.pyの「識別結果に応じた表示用シンボル画像の表示設定」(80行目あたり)にある表示用シンボル画像を差し替える。  
 　識別結果に応じて、表示するシンボル画像を切り替える修正をする。  
 
-　シンボル画像格納先： samples/automl_dogcat/tensorflow/symbol  
+　シンボル画像保存先： samples/automl_dogcat/tensorflow/symbol  
 
 　サンプルでは識別用の画像として、次のsymbolフォルダの画像を利用している。  
-　サンプル例：dogの場合、sysmbol/dog.png  
-　　　　　　　catの場合、sysmbol/cat.png  
+　サンプル例：dogの場合、symbol/dog.png  
+　　　　　　　catの場合、sy    mbol/cat.png  
 
 　その後、demo.pyを実行する。  
 　

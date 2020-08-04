@@ -9,7 +9,7 @@
 #include "include/numpy.h"
 
 //see https://docs.scipy.org/doc/numpy-dev/neps/npy-format.html
-const NUMPY_HEADER default_numpy_header = {0,0,0,QMC_DTYPE_NONE, 0, {0,0,0,0}};
+const NUMPY_HEADER default_numpy_header = {0,0,0,QMC_DTYPE_NONE, 0, {0,0,0,0,0,0,0,0}};
 
 
 //x93NUMPY
@@ -49,20 +49,27 @@ int load_from_numpy(void *dp, const char *numpy_fname, int size, NUMPY_HEADER *h
   //np_print_heaer_info(hp);
 
   //引数のサイズと、numpyヘッダーのサイズを比較
-  if(hp->shape[1] == 0) {
-      size_from_shape = hp->shape[0];
-  } else if (hp->shape[2] == 0) {
-      size_from_shape = hp->shape[0] * hp->shape[1];
-  } else if  (hp->shape[3] == 0) {
-      size_from_shape = hp->shape[0] * hp->shape[1] * hp->shape[2];
-  } else {
-      size_from_shape = hp->shape[0] * hp->shape[1] *  hp->shape[2] *  hp->shape[3];
+  size_from_shape = hp->shape[0];
+  for (int i=1; i<8; i++) {
+    if (hp->shape[i] == 0) {
+      break;
+    }
+    size_from_shape *= hp->shape[i];
   }
+//  if(hp->shape[1] == 0) {
+//      size_from_shape = hp->shape[0];
+//  } else if (hp->shape[2] == 0) {
+//      size_from_shape = hp->shape[0] * hp->shape[1];
+//  } else if  (hp->shape[3] == 0) {
+//      size_from_shape = hp->shape[0] * hp->shape[1] * hp->shape[2];
+//  } else {
+//      size_from_shape = hp->shape[0] * hp->shape[1] *  hp->shape[2] *  hp->shape[3];
+//  }
 
   printf("size = %d, size_from_shape = %d\n", size, size_from_shape);
 
   if(size != size_from_shape) {
-    printf("ERROR:numpy header error %s\n", numpy_fname);
+    printf("ERROR:numpy header size error %s\n", numpy_fname);
     return QMC_NP_HEADER_ERR;
   }
 
@@ -257,9 +264,9 @@ int np_parse_header_dic(char *buf, NUMPY_HEADER *hp)
            return QMC_NP_HEADER_ERR;
         }
 
-        //hp->shapeがサイズ4の配列だから。
-        if(dim>4) {
-          printf("ERROR unsupported shape %s\n", cp);
+        //hp->shapeがサイズ8の配列だから。
+        if(dim>8) {
+          printf("ERROR unsupported shape range %s\n", cp);
            return QMC_NP_HEADER_ERR;
         }
         hp->shape[dim] = size;

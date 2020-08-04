@@ -46,6 +46,7 @@ nav:
     - Tiny-YOLO TensorFlow版: samples/tiny_yolo.md
     - Tiny-YOLO Darknet版: samples/tiny_yolo_yad2k.md
     - AutoML 識別: samples/automl_dogcat.md
+    - LSTMを使ったテキスト識別: samples/text_classification.md
   - 出力ファイル: output/output.md
   - APIs: API/api.md
   - Util関数:

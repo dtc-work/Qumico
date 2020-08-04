@@ -1,0 +1,1 @@
+This is a folder for training data and test data from https://www.kaggle.com/c/nlp-getting-started.

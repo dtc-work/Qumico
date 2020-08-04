@@ -38,16 +38,17 @@ def fuse_activation_function(node, **kwargs):
 
 def quantizing(node, **kwargs):
 
-    transpose = True if node.TFLITE_OP == "AVERAGE_POOL_2D" else False
+    transpose = True if (node.TFLITE_OP == "AVERAGE_POOL_2D" or node.TFLITE_OP == 'MAX_POOL_2D') else False
 
     if transpose:
         inputs = kwargs.get("inputs")
+        operator_idx = kwargs.get("operator_idx")
         for i in range(len(node.onnx_nodes[0].input)):
             
-            node.onnx_nodes[0].input[i] = create_property_name(inputs[i].name, "Dequantize")
+            node.onnx_nodes[0].input[i] = create_property_name(inputs[i].name + "_" + str(operator_idx), "Dequantize")
             input_x_scale = create_property_name(inputs[i].name, "x_scale")
             input_x_zero_point = create_property_name(inputs[i].name, "x_zero_point")
-            input_dequantize_name = create_property_name(inputs[i].name, "Dequantize") 
+            input_dequantize_name = create_property_name(inputs[i].name + "_" + str(operator_idx), "Dequantize") 
                
             node.onnx_value_infos.append(helper.make_tensor_value_info(inputs[i].name,
                                                                        NP_TYPE_TO_TENSOR_TYPE[
@@ -106,7 +107,7 @@ def quantizing(node, **kwargs):
                                                     outputs[0].quantization.zero_point))
     
 
-        input_transpose = create_property_name(inputs[0].name, "Transpose")
+        input_transpose = create_property_name(inputs[0].name + "_" + str(operator_idx), "Transpose")
         output_transpose = create_property_name(outputs[0].name, "Transpose")
 
         input_transposed_shape = (inputs[0].shape[0],
@@ -161,12 +162,13 @@ def quantizing(node, **kwargs):
     else:
         # input
         inputs = kwargs.get("inputs")
+        operator_idx = kwargs.get("operator_idx")
 
         for i in range(len(node.onnx_nodes[0].input)):
-            node.onnx_nodes[i].input[i] = create_property_name(inputs[i].name, "Dequantize")
+            node.onnx_nodes[i].input[i] = create_property_name(inputs[i].name + "_" + str(operator_idx), "Dequantize")
             input_x_scale = create_property_name(inputs[i].name, "x_scale")
             input_x_zero_point = create_property_name(inputs[i].name, "x_zero_point")
-            input_dequantize_name = create_property_name(inputs[i].name, "Dequantize") 
+            input_dequantize_name = create_property_name(inputs[i].name + "_" + str(operator_idx), "Dequantize") 
                
             node.onnx_value_infos.append(helper.make_tensor_value_info(inputs[i].name,
                                                                        NP_TYPE_TO_TENSOR_TYPE[

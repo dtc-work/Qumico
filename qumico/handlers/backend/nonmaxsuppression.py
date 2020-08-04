@@ -38,7 +38,7 @@ class NonMaxSuppression(BackendHandler):
             outputs_shape_tmp = np.ones(shape=tuple((max_output_boxes_per_class,3)), dtype=outputs_dtype)
         except Exception as e:
             logging.warn('use model output shape in NonMaxSuppression op because of shape error:{0}'.format(e))
-            outputs_shape = node.outputs_info[1]
+            outputs_shape = node.outputs_info[0][1]
 
         outputs_dict = {node.valid_var_name(node.outputs[0]): np.ones(shape=outputs_shape, dtype=outputs_dtype)}
         output_tensor = namedtupledict('output_tensor', outputs_dict.keys())(**outputs_dict)
@@ -92,10 +92,10 @@ class NonMaxSuppression(BackendHandler):
                 const float area_i = (box_iy2 - box_iy1) * (box_ix2 - box_ix1);
                 const float area_j = (box_jy2 - box_jy1) * (box_jx2 - box_jx1);
                 if (area_i <= 0 || area_j <= 0) {{ return 0.0; }}
-                const float intersection_ymin = (box_iy1 < box_jy1) ? box_iy1 : box_jy1;
-                const float intersection_xmin = (box_ix1 < box_jx1) ? box_ix1 : box_jx1;
-                const float intersection_ymax = (box_iy2 > box_jy2) ? box_iy2 : box_jy2;
-                const float intersection_xmax = (box_ix2 > box_jx2) ? box_ix2 : box_jx2;
+                const float intersection_ymin = (box_iy1 > box_jy1) ? box_iy1 : box_jy1;
+                const float intersection_xmin = (box_ix1 > box_jx1) ? box_ix1 : box_jx1;
+                const float intersection_ymax = (box_iy2 < box_jy2) ? box_iy2 : box_jy2;
+                const float intersection_xmax = (box_ix2 < box_jx2) ? box_ix2 : box_jx2;
                 const float intersection_area =
                     (((intersection_ymax - intersection_ymin) >0) ? (intersection_ymax - intersection_ymin) : 0.0)
                     * (((intersection_xmax - intersection_xmin) >0) ? (intersection_xmax - intersection_xmin) : 0.0);
@@ -111,11 +111,19 @@ class NonMaxSuppression(BackendHandler):
             int nonmaxsuppression_idx_sort(float score[], int indices[], int num_scores_kept) {{
                 for (int i=0; i<num_scores_kept; i++) {{
                     for (int j=i+1; j<num_scores_kept; j++) {{
-                        if (score[indices[i]] < score[indices[j]]) {{
+                        if (score[i] < score[j]) {{
                             int tmp_idx = indices[i];
                             indices[i] = indices[j];
                             indices[j] = tmp_idx;
+                            float tmp_score = score[i];
+                            score[i] = score[j];
+                            score[j] = tmp_score;
                         }}
+//                        if (score[indices[i]] < score[indices[j]]) {{
+//                            int tmp_idx = indices[i];
+//                            indices[i] = indices[j];
+//                            indices[j] = tmp_idx;
+//                        }}
                     }}
                 }}
             }}
@@ -148,7 +156,7 @@ class NonMaxSuppression(BackendHandler):
             const int  scores_batch = {scores_batch};
             const int  scores_class = {scores_class};
             const int  scores_spatial = {scores_spatial};
-            const long int  max_output_boxes_p_class = max_output_boxes_per_class[0];
+            const long long int  max_output_boxes_p_class = max_output_boxes_per_class[0];
             const float  iou_th = iou_threshold[0];
             const float  score_th = score_threshold[0];
             const int  selected_indices_num = {selected_indices_num};
@@ -227,6 +235,15 @@ class NonMaxSuppression(BackendHandler):
                         sorted_indices[i] = keep_indices[i];
 //                        printf("keep_score[%d] = %f\\n", sorted_indices[i], keep_scores[i]);
                     }}
+//                    for (int i=0; i<num_scores_kept; i++) {{
+//                        printf("pre_keep_score[%d] = %f\\n", i, keep_scores[i]);
+//                    }}
+//                    for (int i=0; i<num_scores_kept; i++) {{
+//                        printf("pre_keep_indices[%d] = %d\\n", i, keep_indices[i]);
+//                    }}
+//                    for (int i=0; i<num_scores_kept; i++) {{
+//                        printf("pre_sorted_indices[%d] = %d\\n", i, sorted_indices[i]);
+//                    }}
 //                    qsort( keep_scores, num_scores_kept, sizeof(float), nonmaxsuppression_num_cmp );
                     nonmaxsuppression_idx_sort( keep_scores, sorted_indices, num_scores_kept);
 //                    for (int i=0; i<num_scores_kept; i++) {{
@@ -255,9 +272,13 @@ class NonMaxSuppression(BackendHandler):
                     int     selected_box_cnt = 0;
 
                     for (int i=0; i<num_boxes_kept; i++) {{
+                        selected[i] = -1;
+                    }}
+                    for (int i=0; i<num_boxes_kept; i++) {{
                         if (num_active_candidate == 0 || selected_box_cnt >= output_size) break;
                         if (active_box_candidate[i] == 1) {{
-                            selected[selected_box_cnt] = keep_indices[sorted_indices[i]];
+//                            selected[selected_box_cnt] = keep_indices[sorted_indices[i]];
+                            selected[selected_box_cnt] = sorted_indices[i];
 //                            printf("%d: selected[%d] = %d\\n", i, selected_box_cnt, selected[selected_box_cnt]);
                             selected_box_cnt++;
                             active_box_candidate[i] = 0;
@@ -267,8 +288,12 @@ class NonMaxSuppression(BackendHandler):
                         }}
                         for (int j = i + 1; j < num_boxes_kept; ++j) {{
                             if (active_box_candidate[j] == 1) {{
-                                float iou = nonmaxsuppression_compute_iou((float *)decoded_boxes, keep_indices[sorted_indices[i]], keep_indices[sorted_indices[j]]);
-//                                printf("%d:%d: iou = %f(th:%f)\\n", i, j, iou, iou_th);
+//                                float iou = nonmaxsuppression_compute_iou((float *)decoded_boxes, keep_indices[sorted_indices[i]], keep_indices[sorted_indices[j]]);
+                                float iou = nonmaxsuppression_compute_iou((float *)decoded_boxes, sorted_indices[i], sorted_indices[j]);
+//                                printf("%d:%d: iou = [%f:%f:%f:%f] [%f:%f:%f:%f] %f(th:%f)\\n", i, j,
+//                                    decoded_boxes[i][0], decoded_boxes[i][1], decoded_boxes[i][2], decoded_boxes[i][3],
+//                                    decoded_boxes[j][0], decoded_boxes[j][1], decoded_boxes[j][2], decoded_boxes[j][3],
+//                                    iou, iou_th);
                                 if (iou > iou_th) {{
                                     active_box_candidate[j] = 0;
                                     num_active_candidate--;
@@ -282,11 +307,18 @@ class NonMaxSuppression(BackendHandler):
 //                    for (int i=0; i<num_boxes_kept; i++) {{
 //                        printf("selected[%d] = %d\\n", i, selected[i]);
 //                    }}
-                    for (int i=0; i<selected_indices_num/scores_class/scores_batch; i++) {{
-                            selected_indices[n*selected_indices_num/scores_batch+c*selected_indices_num/scores_class/scores_batch+i][0] = n;
-                            selected_indices[n*selected_indices_num/scores_batch+c*selected_indices_num/scores_class/scores_batch+i][1] = c;
-                            selected_indices[n*selected_indices_num/scores_batch+c*selected_indices_num/scores_class/scores_batch+i][2] = selected[i];
-//                            printf("result: %d:%d:%d\\n", n, c, selected[i]);
+                    int num_batch_elements = selected_indices_num/scores_batch;
+                    for (int i=0; i<num_batch_elements/scores_class; i++) {{
+                        if (selected[i] == -1) {{
+                            selected_indices[n*num_batch_elements+c*num_batch_elements/scores_class+i][0] = -1;
+                            selected_indices[n*num_batch_elements+c*num_batch_elements/scores_class+i][1] = -1;
+                            selected_indices[n*num_batch_elements+c*num_batch_elements/scores_class+i][2] = -1;
+                        }} else {{
+                            selected_indices[n*num_batch_elements+c*num_batch_elements/scores_class+i][0] = n;
+                            selected_indices[n*num_batch_elements+c*num_batch_elements/scores_class+i][1] = c;
+                            selected_indices[n*num_batch_elements+c*num_batch_elements/scores_class+i][2] = selected[i];
+                        }}
+//                        printf("NMS_result: %d:%d:%d\\n", n, c, selected[i]);
                     }}
                 }}
             }}
@@ -310,7 +342,7 @@ class NonMaxSuppression(BackendHandler):
 
         # 3        
         TemplateFunction = cleandoc('''
-        void {op_func_name}(void *op_param, float boxes{dims_boxes}, float scores{dims_scores}, long int max_output_boxes_per_class[], float iou_threshold[], float score_threshold[], {t} selected_indices{dims_selected_indices}, void *inputs_params, void* outputs_params) {{
+        void {op_func_name}(void *op_param, float boxes{dims_boxes}, float scores{dims_scores}, long long int max_output_boxes_per_class[], float iou_threshold[], float score_threshold[], {t} selected_indices{dims_selected_indices}, void *inputs_params, void* outputs_params) {{
             {statements}
         }}
         ''')

@@ -1,7 +1,11 @@
-onnx==1.5.0
-tf2onnx==1.5.1
-tensorflow==1.13.2
+onnx==1.6.0
+tf2onnx==1.5.4
+tensorflow==1.15.0
+keras2onnx==1.6.0
+skl2onnx==1.6.0
 Keras
-numpy
 pillow
 opencv-python
+nltk
+pandas
+nltk

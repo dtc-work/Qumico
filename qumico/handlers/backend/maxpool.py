@@ -4,6 +4,7 @@ import math
 import numpy as np
 
 from onnx.backend.base import namedtupledict
+from qumico.common.data_type_maxmin import get_min
 from qumico.common import c_helper
 from qumico.common import data_type
 from qumico.device import QumicoDeviceType, QumicoDevice
@@ -296,7 +297,7 @@ class MaxPool(BackendHandler):
                         for (int w=0; w<Y_w; w++) {{
                             {t} pool;
                             int  max_flag;
-                            pool = -DBL_MAX;
+                            pool = {MIN_VAL};
                             max_flag = 0;
                             for (int kw=kernel_shape_w_min; kw<kernel_shape_w_max; kw++) {{
                                 if ((w*stride_w+kw*dilation_w < 0) || (w*stride_w+kw*dilation_w >= X_w)) {{ continue; }}
@@ -326,6 +327,7 @@ class MaxPool(BackendHandler):
             mapping.update({'dilation_w': dilations[0]})
             mapping.update({'storage_order': storage_order})
             mapping.update({'pragma':self.PRAGMA_OMP if self.OpenMP else ''})
+            mapping.update({'MIN_VAL': get_min(self.input_tensor[0].dtype)})
             mapping.update({'t': data_type.np2c(self.output_tensor_dtypes[0])})
 
         elif (ndim == 4):
@@ -395,7 +397,7 @@ class MaxPool(BackendHandler):
                                     for (int w=0; w<Y_w; w++) {{
                                         {t} pool;
                                         int  max_flag;
-                                        pool = -DBL_MAX;
+                                        pool = {MIN_VAL};
                                         max_flag = 0;
                                         for (int kh=kernel_shape_h_min; kh<kernel_shape_h_max; kh++) {{
                                             if ((h*stride_h+kh*dilation_h < 0) || (h*stride_h+kh*dilation_h >= X_h)) {{ continue; }}
@@ -417,7 +419,7 @@ class MaxPool(BackendHandler):
                                     for (int h=0; h<Y_h; h++) {{
                                         {t} pool;
                                         int  max_flag;
-                                        pool = -DBL_MAX;
+                                        pool = {MIN_VAL};
                                         max_flag = 0;
                                         for (int kh=kernel_shape_h_min; kh<kernel_shape_h_max; kh++) {{
                                             if ((h*stride_h+kh*dilation_h < 0) || (h*stride_h+kh*dilation_h >= X_h)) {{ continue; }}
@@ -460,6 +462,7 @@ class MaxPool(BackendHandler):
             mapping.update({'dilation_w': dilations[1]})
             mapping.update({'storage_order': storage_order})
             mapping.update({'pragma':self.PRAGMA_OMP if self.OpenMP else ''})
+            mapping.update({'MIN_VAL': get_min(self.input_tensor[0].dtype)})
             mapping.update({'t': data_type.np2c(self.output_tensor_dtypes[0])})
 
         elif (ndim == 5):
@@ -508,7 +511,7 @@ class MaxPool(BackendHandler):
                                 for (int w=0; w<Y_w; w++) {{
                                     {t} pool;
                                     int  max_flag;
-                                    pool = -DBL_MAX;
+                                    pool = {MIN_VAL};
                                     max_flag = 0;
                                     for (int kd=kernel_shape_d_min; kd<kernel_shape_d_max; kd++) {{
                                         if ((d*stride_d+kd*dilation_d < 0) || (d*stride_d+kd*dilation_d >= X_d)) {{ continue; }}
@@ -560,6 +563,7 @@ class MaxPool(BackendHandler):
             mapping.update({'dilation_w': dilations[2]})
             mapping.update({'storage_order': storage_order})
             mapping.update({'pragma':self.PRAGMA_OMP if self.OpenMP else ''})
+            mapping.update({'MIN_VAL': get_min(self.input_tensor[0].dtype)})
             mapping.update({'t': data_type.np2c(self.output_tensor_dtypes[0])})
 
         # 3        

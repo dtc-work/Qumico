@@ -21,7 +21,7 @@ class MEAN(TFLiteBaseHandler):
         node = MEAN()
         # _onnx_value_infos
         ops_option = operator.option # ReducerOptions
-        keep_dims = int()
+        keep_dims = ops_option.keep_dims
         axes = input_buffers[1]
         
         node.onnx_value_infos.append(helper.make_tensor_value_info(inputs[0].name,

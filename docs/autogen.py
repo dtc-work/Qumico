@@ -11,11 +11,8 @@ import os
 import re
 
 module_name = 'qumico.Qumico'
-output_dir = 'docs/docs/API'
+output_dir = 'docs/API'
 output_file = 'api.md'
-
-
-
 
 # markdownファイルの先頭に来る文字列
 md_header = """

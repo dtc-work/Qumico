@@ -7,8 +7,10 @@ from onnx.backend.base import namedtupledict
 
 from qumico.handlers.backend_handler import BackendHandler
 from qumico.handlers.handler import onnx_op
+from qumico.common.data_type_maxmin import get_min
 from qumico.common import c_helper
 from qumico.common import data_type
+
 from .math_mixin import ReductionMixin
 
 @onnx_op('ReduceMax')
@@ -22,7 +24,7 @@ class ReduceMax(ReductionMixin, BackendHandler):
         axes = tuple(node.attrs.get('axes', list(range(input.ndim))))
         keepdims = node.attrs.get('keepdims', True)
 
-        output = np.mean(input, axis=axes, keepdims=keepdims)
+        output = np.mean(input, axis=axes, keepdims=keepdims).astype(input.dtype)
         output_value ={node.valid_var_name(node.outputs[0]): output}
         output_tensor = namedtupledict('output_tensor', output_value.keys())(**output_value)
 
@@ -51,9 +53,7 @@ class ReduceMax(ReductionMixin, BackendHandler):
                 void *value;
             } ReduceMaxOpParam;
             ''')    
-    
-    
-    
+
     @classmethod
     @BackendHandler.dec_generate_once(resType=list)
     def get_c_op_include_header(cls):
@@ -61,8 +61,9 @@ class ReduceMax(ReductionMixin, BackendHandler):
 
 
     def generate_c_code_init(self):
+        input = self.input_tensor[0]
         output = self.output_tensor[0]
-        
+
         keepdims = self.attrs.get('keepdims', True)
         
         indent = [' ' * 4] * (output.ndim +1)
@@ -89,7 +90,7 @@ class ReduceMax(ReductionMixin, BackendHandler):
             if output_dim =='':
                 output_dim ='[0]'
 
-        return TemplateArrayLoop.replace('[statements]',  ''.join(indent) + 'output' + output_dim + '= -DBL_MAX;')
+        return TemplateArrayLoop.replace('[statements]',  ''.join(indent) + 'output' + output_dim + f'= {get_min(input.dtype)};')
  
 
     def generate_c_code_reduce(self):

@@ -7,6 +7,7 @@ import numpy as np
 from onnx.backend.base import namedtupledict
 from onnx import numpy_helper
 
+from qumico.device import QumicoDeviceType, QumicoDevice
 from qumico.handlers.backend_handler import BackendHandler
 from qumico.handlers.handler import onnx_op
 from qumico.common import c_helper
@@ -16,6 +17,8 @@ from qumico.common import data_type
 @onnx_op('Exp')
 class Exp(BackendHandler):
 
+    OpenMP = False
+
     @classmethod
     def instantiate(cls, node, **kwargs):
         input_data = node.input_tensor[0]
@@ -23,10 +26,14 @@ class Exp(BackendHandler):
         outputs_dtype = input_data.dtype
         outputs_dict = {node.valid_var_name(node.outputs[0]): np.ones(shape=outputs_shape, dtype=outputs_dtype)}
         output_tensor = namedtupledict('output_tensor', outputs_dict.keys())(**outputs_dict)
-        return cls(node, input_tensor=node.input_tensor, 
+
+        device = kwargs.get('device')
+        if (issubclass(device.__class__, QumicoDevice) and
+            QumicoDeviceType.OpenMP in device.options):
+            cls.OpenMP = True
+
+        return cls(node, input_tensor=node.input_tensor,
                    output_tensor=output_tensor, attrs=node.attrs)
-
-
 
     @classmethod
     def get_param_type_name(cls):
@@ -64,7 +71,11 @@ class Exp(BackendHandler):
         res +='\n\n'
 
         # 1
-        TemplateArrayExpLoop = c_helper.generate_ndim_for_loop(np.ones(self.output_tensor_shapes[0]))
+        TemplateArrayExpLoop = c_helper.generate_ndim_for_loop(np.ones(self.output_tensor_shapes[0]),
+                                                               pragma=self.OpenMP)
+
+        if self.OpenMP:
+            TemplateArrayExpLoop = TemplateArrayExpLoop.replace('[pragma]', self.PRAGMA_OMP)
 
         # 2
         TemplateStatements = '''

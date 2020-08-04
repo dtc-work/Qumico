@@ -20,7 +20,7 @@ TENSOR_TYPE_TO_C_TYPE_STRING = {
     TensorProto.UINT16: "unsigned short int",
     TensorProto.INT16: "short int",
     TensorProto.INT32: "int",
-    TensorProto.INT64: "long int",
+    TensorProto.INT64: "long long int",
     TensorProto.BOOL: "bool",
     TensorProto.FLOAT16: "float",
     TensorProto.DOUBLE: "double",

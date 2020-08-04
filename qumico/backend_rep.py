@@ -121,15 +121,19 @@ class QumicoRep(BackendRep):
 
         # execute
         NodeDLL = ctypes.CDLL(path.join(self._out_c_path, QUMICO_MAIN + ".so")) # convert extension
-        output =np.zeros(dtype=self.graph[-1].op.output_tensor_dtypes[0], shape=self.graph[-1].op.output_tensor_shapes[0])        
+        outputs = []
+        for i in range(len(self.graph[-1].op.output_tensor)):
+            outputs.append(np.zeros(dtype=self.graph[-1].op.output_tensor_dtypes[i],
+                                   shape=self.graph[-1].op.output_tensor_shapes[i]))
+
 
         inputs_ndpointers =[]
         inputs_ndpointers.extend(self._get_ndpointers(inputs))
-        inputs_ndpointers.extend(self._get_ndpointers([output]))
+        inputs_ndpointers.extend(self._get_ndpointers(outputs))
 
         NodeDLL.qumico.argtypes = inputs_ndpointers
         NodeDLL.qumico.restype = ctypes.c_int
-        NodeDLL.qumico(*(inputs + [output]))
+        NodeDLL.qumico(*(inputs + outputs))
 
         # todo move to postrun decorator method
         if platform.system() == "Windows":
@@ -140,7 +144,7 @@ class QumicoRep(BackendRep):
         for n in self.graph:
             n.op.reset_for_run()
         
-        return [output]
+        return outputs
 
     def _is_quant(self):
         return any(n.op.Quantizable for n in self.graph)
@@ -252,13 +256,12 @@ class QumicoRep(BackendRep):
         res = []
         res.append("// define Nodes")
         res.append("int NodesCnt={0};".format(str(len(self.graph)))) 
-        res.append("Node Nodes[{0}];".format(str(len(self.graph)))) 
-        res.append("// define Node's  Params")       
+        res.append("Node Nodes[{0}];".format(str(len(self.graph))))
         return "\n".join(res)
 
 
     def _generate_node_params_def(self):
-        res = []
+        res = ["// define Node's  Params"]
         for i, n in enumerate(self.graph):
             res.append(n.op.get_param_type_name() + " " + n.node_param_name + ";")
             res.append(n.gen_node_variables(i))
@@ -271,10 +274,10 @@ class QumicoRep(BackendRep):
 
         TemplateOutputs = "{t} {name}{shape};"
         for i, n in enumerate(self.graph):
-            # todo:not only one onput, multiple outputs need to be generated            
-            res.append(TemplateOutputs.format(**{"t": data_type.np2c(n.op.output_tensor_dtypes[0]),
-                                               "name": n.output_tensor_names[0], # output_tensor_names
-                                               "shape":c_helper.generate_dim_bracket(n.op.output_tensor_shapes[0])}))
+            for j in range(len(n.op.output_tensor)):
+                res.append(TemplateOutputs.format(**{"t": data_type.np2c(n.op.output_tensor_dtypes[j]),
+                                                   "name": n.output_tensor_names[j], # output_tensor_names
+                                                   "shape":c_helper.generate_dim_bracket(n.op.output_tensor_shapes[j])}))
         return "\n".join(res)
 
 

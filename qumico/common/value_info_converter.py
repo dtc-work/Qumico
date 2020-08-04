@@ -1,7 +1,4 @@
-
 import numpy as np
-
-from onnx import mapping
 
 from qumico.common import data_type
 

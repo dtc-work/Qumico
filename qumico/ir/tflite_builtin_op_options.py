@@ -215,6 +215,9 @@ class Conv2DOptions(BaseBuiltinOptions):
         return self._dilation_h_factor
 
         
+class CustomOptions(BaseBuiltinOptions):
+    pass
+
 class Pool2DOptions(BaseBuiltinOptions):
     """
       padding:Padding;
@@ -334,8 +337,38 @@ class AddOptions(BaseBuiltinOptions):
         return self._fused_activation_function
 
 
+class MulOptions(BaseBuiltinOptions):
+    """
+      fused_activation_function:ActivationFunctionType;
+    """
+    def __init__(self, fused_activation_function):
+        self._fused_activation_function =  ActivationFunctionType[fused_activation_function]
+
+    @property
+    def fused_activation_function(self):
+        return self._fused_activation_function
+
+
 class TransposeOptions(BaseBuiltinOptions):
     pass
+
+
+class ConcatenationOptions(BaseBuiltinOptions):
+    """
+    fused_activation_function:  NONE|RELU|RELU6
+    axis: dimension along which the concatenation is performed
+    """
+    def __init__(self, fused_activation_function, axis):
+        self._fused_activation_function =  ActivationFunctionType[fused_activation_function]
+        self._axis = axis
+
+    @property
+    def fused_activation_function(self):
+        return self._fused_activation_function
+
+    @property
+    def axis(self):
+        return self._axis
 
 
 class ReshapeOptions(BaseBuiltinOptions):
@@ -424,6 +457,9 @@ class FakeQuantOptions(BaseBuiltinOptions):
     def narrow_range(self):
         return self._narrow_range
 
+
+class LogisticOptions(BaseBuiltinOptions):
+    pass
 
 class QuantizeOptions(BaseBuiltinOptions):
     pass

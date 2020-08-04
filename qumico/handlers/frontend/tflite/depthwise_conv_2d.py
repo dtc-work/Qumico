@@ -35,6 +35,7 @@ class DEPTHWISE_CONV_2D(TFLiteBaseHandler):
         output_names = [o.name for o in outputs]
         kernel_shape =inputs[1].shape[1:3]
         group = outputs[0].shape[0] * outputs[0].shape[-1]
+        operator_idx = kwargs.get("operator_idx")
 
         strides = [ops_option.stride_h, ops_option.stride_w]
         dilations = [ops_option.dilation_h_factor, ops_option.dilation_w_factor] 
@@ -54,7 +55,7 @@ class DEPTHWISE_CONV_2D(TFLiteBaseHandler):
         if bias:
             input2_name = input_names[2]
 
-        input0_transpose_node_name = create_property_name(input_names[0], "Input0Transpose")
+        input0_transpose_node_name = create_property_name(input_names[0] + "_" + str(operator_idx), "Input0Transpose")
         output0_transpose_node_name = create_property_name(output_names[0], "Output0Transpose")
         output_name = output_names[0]
 

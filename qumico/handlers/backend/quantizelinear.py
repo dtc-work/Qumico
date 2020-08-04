@@ -96,12 +96,17 @@ class QuantizeLinear(ArithmeticMixin, BackendHandler):
 
         # 2
         mapping = {}
-        TemplateStatements = 'temp_arr{CStatementDims} = ROUND({X}{XStatementDims} / {Y}{YStatementDims}) + {Z}{ZStatementDims};\n'
+        # TemplateStatements = 'temp_arr{CStatementDims} = ROUND({X}{XStatementDims} / {Y}{YStatementDims}) + {Z}{ZStatementDims};\n'
+        #
+        # if data_type.np2c(self.output_tensor_dtypes[0]) == 'uint8_t':
+        #     TemplateStatements += '            {C}{CStatementDims} = CLAMP(temp_arr{CStatementDims}, 0, 255);\n'
+        # else:
+        #     TemplateStatements += '            {C}{CStatementDims} = CLAMP(temp_arr{CStatementDims}, -127, 128);\n'
 
         if data_type.np2c(self.output_tensor_dtypes[0]) == 'uint8_t':
-            TemplateStatements += '            {C}{CStatementDims} = CLAMP(temp_arr{CStatementDims}, 0, 255);\n'
+            TemplateStatements = '{C}{CStatementDims} = CLAMP(ROUND({X}{XStatementDims} / {Y}{YStatementDims}) + {Z}{ZStatementDims}, 0, 255);\n'
         else:
-            TemplateStatements += '            {C}{CStatementDims} = CLAMP(temp_arr{CStatementDims}, -127, 128);\n'
+            TemplateStatements = '{C}{CStatementDims} = CLAMP(ROUND({X}{XStatementDims} / {Y}{YStatementDims}) + {Z}{ZStatementDims}, -127, 128);\n'
 
         mapping.update({'X': self.input_tensor_names[0]})
         mapping.update({'Y': self.input_tensor_names[1]})
@@ -148,7 +153,6 @@ class QuantizeLinear(ArithmeticMixin, BackendHandler):
         TemplateFunction = cleandoc('''
         void {op_func_name}(void *op_param,{x_type} {X}{XDims} , {y_type} {Y}{YDims}, {z_type} {Z}{ZDims}, {c_type} {C}{CDims}, void *inputs_params, void* outputs_params)
         {{      
-                long temp_arr{CDims};
         {statements}
         }}
         ''')

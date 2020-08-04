@@ -194,6 +194,7 @@ class Buffer: # Buffer
 
 
 class Operator: # Operator
+    NONE_OPTION_TYPE = "0" # ex.option of logistic op in tflite
     MODULE_PATH = importlib.import_module(OP_OPTIONS.__name__)
 
     def __init__(self, opcode_index, inputs, outputs, builtin_options, builtin_options_type,
@@ -207,9 +208,12 @@ class Operator: # Operator
         self._custom_options_format = custom_options_format # CustomOptionsFormat
         self._mutating_variable_inputs = mutating_variable_inputs
 
-        # additinal
-        self._option = getattr(self.MODULE_PATH, builtin_options_type)(**builtin_options)
-        
+        # additional
+        if builtin_options_type == Operator.NONE_OPTION_TYPE:
+            self._option = None
+        else:
+            self._option = getattr(self.MODULE_PATH, builtin_options_type)(**builtin_options)
+
     @classmethod
     def parse(cls, json_content):
 
@@ -219,9 +223,8 @@ class Operator: # Operator
             opcode_index =op["opcode_index"]
             inputs = op["inputs"]
             outputs = op["outputs"]
-            builtin_options_type =  op["builtin_options_type"]
-    
-            builtin_options = op["builtin_options"]
+            builtin_options_type = str(op.get("builtin_options_type")) # when no builtin_options_type, the value set 0
+            builtin_options = op.get("builtin_options",{})
             custom_options = op.get("custom_options")
             custom_options_format = op["custom_options_format"]
 

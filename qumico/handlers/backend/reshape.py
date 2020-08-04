@@ -20,7 +20,11 @@ class Reshape(BackendHandler):
         input_data2 = node.input_tensor[1]
 
         try:
-            outputs_shape = np.reshape(input_data1, input_data2).shape
+            # numpy reshape is not allowed to set zero dim in its's shape 
+            # zero dim in onnx spec means the same dim 
+            input_data2_to_np = [input_data1.shape[index] if d == 0 else d  for (index, d) in enumerate(input_data2)]
+            outputs_shape = np.reshape(input_data1, input_data2_to_np).shape
+            
         except TypeError as e:
             input_data2_shape = input_data2.shape
             if input_data2_shape[-1] == 1:
@@ -30,7 +34,7 @@ class Reshape(BackendHandler):
                 raise ValueError()
         except Exception as e:
             logging.warn('use model output shape in reshape op because of shape error:{0}'.format(e))
-            outputs_shape = node.outputs_info[1]
+            outputs_shape = node.outputs_info[0][1]
 
         outputs_dtype = input_data1.dtype
         outputs_dict = {node.valid_var_name(node.outputs[0]): np.ones(shape=outputs_shape, dtype=outputs_dtype)}
@@ -104,7 +108,7 @@ class Reshape(BackendHandler):
 
         # 3        
         TemplateFunction = cleandoc('''
-        void {op_func_name}(void *op_param, {t} data{dims_data}, long int shape[], {t} reshaped{dims_reshaped}, void *inputs_params, void* outputs_params) {{
+        void {op_func_name}(void *op_param, {t} data{dims_data}, long long int shape[], {t} reshaped{dims_reshaped}, void *inputs_params, void* outputs_params) {{
             {statements}
         }}
         ''')

@@ -7,7 +7,7 @@ typedef struct numpy_header_tag {
     unsigned short header_len;
     QMC_DTYPE descr;
     bool fortran_order;
-    int shape[4];
+    int shape[8];
 } NUMPY_HEADER;
 
 

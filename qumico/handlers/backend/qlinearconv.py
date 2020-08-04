@@ -742,7 +742,8 @@ memset( (void *)work_pad_i, 0, sizeof(int) * X_n * aligned_X_c * (padded_X_d) * 
                     for (h=0; h<Y_h; h++) {{
                         for (w=0; w<Y_w; w++) {{
                             for (oc=0; oc<aligned_Y_c; oc++) {{
-                                work_pad_o[mat_idx5(n, Y_n, d, Y_d, h, Y_h, w, Y_w, oc, aligned_Y_c)] = B[oc];
+//                                work_pad_o[mat_idx5(n, Y_n, d, Y_d, h, Y_h, w, Y_w, oc, aligned_Y_c)] = B[oc];
+                                work_pad_o[mat_idx5(n, Y_n, d, Y_d, h, Y_h, w, Y_w, oc, aligned_Y_c)] = 0;
                             }}
                         }}
                     }}
@@ -754,7 +755,8 @@ memset( (void *)work_pad_i, 0, sizeof(int) * X_n * aligned_X_c * (padded_X_d) * 
                         for (h=0; h<Y_h; h++) {{
                             for (w=0; w<Y_w; w++) {{
                                 for (oc2=0; oc2<SIMD_VECTOR_SIZE; oc2++) {{
-                                    work_pad_o[mat_idx6(n, Y_n, oc1, (aligned_Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] = B[oc1*SIMD_VECTOR_SIZE+oc2];
+//                                    work_pad_o[mat_idx6(n, Y_n, oc1, (aligned_Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] = B[oc1*SIMD_VECTOR_SIZE+oc2];
+                                    work_pad_o[mat_idx6(n, Y_n, oc1, (aligned_Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] = 0;
                                 }}
                             }}
                         }}
@@ -767,7 +769,8 @@ memset( (void *)work_pad_i, 0, sizeof(int) * X_n * aligned_X_c * (padded_X_d) * 
                         for (h=0; h<Y_h; h++) {{
                             for (w=0; w<Y_w; w++) {{
                                 for (oc2=0; oc2<SIMD_VECTOR_SIZE; oc2++) {{
-                                    work_pad_o[mat_idx6(n, Y_n, oc1, (aligned_Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] = B[oc1*SIMD_VECTOR_SIZE+oc2];
+//                                    work_pad_o[mat_idx6(n, Y_n, oc1, (aligned_Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] = B[oc1*SIMD_VECTOR_SIZE+oc2];
+                                    work_pad_o[mat_idx6(n, Y_n, oc1, (aligned_Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] = 0;
                                 }}
                             }}
                         }}
@@ -1099,11 +1102,13 @@ memset( (void *)work_pad_i, 0, sizeof(int) * X_n * aligned_X_c * (padded_X_d) * 
                 '''
                 if (W_scale_len == 1): # W_scale is scalar
                     TemplateStatements += '''
-                                    *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_o[mat_idx5(n, Y_n, d, Y_d, h, Y_h, w, Y_w, oc, aligned_Y_c)] * X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+//                                    *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_o[mat_idx5(n, Y_n, d, Y_d, h, Y_h, w, Y_w, oc, aligned_Y_c)] * X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+                                    *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round((work_pad_o[mat_idx5(n, Y_n, d, Y_d, h, Y_h, w, Y_w, oc, aligned_Y_c)] +B[oc])* X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                     '''
                 else: # W_scale is 1D-array
                     TemplateStatements += '''
-                                    *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_o[mat_idx5(n, Y_n, d, Y_d, h, Y_h, w, Y_w, oc, aligned_Y_c)] * X_scale[0] * W_scale[oc] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+//                                    *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_o[mat_idx5(n, Y_n, d, Y_d, h, Y_h, w, Y_w, oc, aligned_Y_c)] * X_scale[0] * W_scale[oc] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+                                    *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round((work_pad_o[mat_idx5(n, Y_n, d, Y_d, h, Y_h, w, Y_w, oc, aligned_Y_c)] +B[oc])* X_scale[0] * W_scale[oc] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                     '''
                 TemplateStatements += '''
                                 }}
@@ -1122,11 +1127,13 @@ memset( (void *)work_pad_i, 0, sizeof(int) * X_n * aligned_X_c * (padded_X_d) * 
                 '''
                 if (W_scale_len == 1): # W_scale is scalar
                     TemplateStatements += '''
-                                        *(_Y_pt + mat_idx5(n, Y_n, (oc1*SIMD_VECTOR_SIZE+oc2), Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_o[mat_idx6(n, Y_n, oc1, (Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] * X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+//                                        *(_Y_pt + mat_idx5(n, Y_n, (oc1*SIMD_VECTOR_SIZE+oc2), Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_o[mat_idx6(n, Y_n, oc1, (Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] * X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+                                        *(_Y_pt + mat_idx5(n, Y_n, (oc1*SIMD_VECTOR_SIZE+oc2), Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round((work_pad_o[mat_idx6(n, Y_n, oc1, (Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] +B[oc1*SIMD_VECTOR_SIZE+oc2])* X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                     '''
                 else: # W_scale is 1D-array
                     TemplateStatements += '''
-                                        *(_Y_pt + mat_idx5(n, Y_n, (oc1*SIMD_VECTOR_SIZE+oc2), Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_o[mat_idx6(n, Y_n, oc1, (Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] * X_scale[0] * W_scale[oc1*SIMD_VECTOR_SIZE+oc2] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+//                                        *(_Y_pt + mat_idx5(n, Y_n, (oc1*SIMD_VECTOR_SIZE+oc2), Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_o[mat_idx6(n, Y_n, oc1, (Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] * X_scale[0] * W_scale[oc1*SIMD_VECTOR_SIZE+oc2] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+                                        *(_Y_pt + mat_idx5(n, Y_n, (oc1*SIMD_VECTOR_SIZE+oc2), Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round((work_pad_o[mat_idx6(n, Y_n, oc1, (Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] +B[oc1*SIMD_VECTOR_SIZE+oc2])* X_scale[0] * W_scale[oc1*SIMD_VECTOR_SIZE+oc2] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                     '''
                 TemplateStatements += '''
                                     }}
@@ -1146,11 +1153,13 @@ memset( (void *)work_pad_i, 0, sizeof(int) * X_n * aligned_X_c * (padded_X_d) * 
                 '''
                 if (W_scale_len == 1): # W_scale is scalar
                     TemplateStatements += '''
-                                        *(_Y_pt + mat_idx5(n, Y_n, (oc1*SIMD_VECTOR_SIZE+oc2), Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_o[mat_idx6(n, Y_n, oc1, (Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] * X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+//                                        *(_Y_pt + mat_idx5(n, Y_n, (oc1*SIMD_VECTOR_SIZE+oc2), Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_o[mat_idx6(n, Y_n, oc1, (Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] * X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+                                        *(_Y_pt + mat_idx5(n, Y_n, (oc1*SIMD_VECTOR_SIZE+oc2), Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round((work_pad_o[mat_idx6(n, Y_n, oc1, (Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] +B[oc1*SIMD_VECTOR_SIZE+oc2])* X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                     '''
                 else: # W_scale is 1D-array
                     TemplateStatements += '''
-                                        *(_Y_pt + mat_idx5(n, Y_n, (oc1*SIMD_VECTOR_SIZE+oc2), Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_o[mat_idx6(n, Y_n, oc1, (Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] * X_scale[0] * W_scale[oc1*SIMD_VECTOR_SIZE+oc2] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+//                                        *(_Y_pt + mat_idx5(n, Y_n, (oc1*SIMD_VECTOR_SIZE+oc2), Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_o[mat_idx6(n, Y_n, oc1, (Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] * X_scale[0] * W_scale[oc1*SIMD_VECTOR_SIZE+oc2] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+                                        *(_Y_pt + mat_idx5(n, Y_n, (oc1*SIMD_VECTOR_SIZE+oc2), Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round((work_pad_o[mat_idx6(n, Y_n, oc1, (Y_c/SIMD_VECTOR_SIZE), d, Y_d, h, Y_h, w, Y_w, oc2, SIMD_VECTOR_SIZE)] +B[oc1*SIMD_VECTOR_SIZE+oc2])* X_scale[0] * W_scale[oc1*SIMD_VECTOR_SIZE+oc2] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                     '''
                 TemplateStatements += '''
                                     }}
@@ -1228,7 +1237,8 @@ memset( (void *)work_pad_i, 0, sizeof(int) * X_n * aligned_X_c * (padded_X_d) * 
                         for (d=0; d<Y_d; d++) {{
                             for (h=0; h<Y_h; h++) {{
                                 for (w=0; w<Y_w; w++) {{
-                                    work_pad_o[mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] = B[oc];
+//                                    work_pad_o[mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] = B[oc];
+                                    work_pad_o[mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] = 0;
                                 }}
                             }}
                         }}
@@ -1286,7 +1296,8 @@ memset( (void *)work_pad_i, 0, sizeof(int) * X_n * aligned_X_c * (padded_X_d) * 
                         for (d=0; d<Y_d; d++) {{
                             for (h=0; h<Y_h; h++) {{
                                 for (w=0; w<Y_w; w++) {{
-                                    work_pad_o[mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] = B[oc];
+//                                    work_pad_o[mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] = B[oc];
+                                    work_pad_o[mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] = 0;
                                 }}
                             }}
                         }}
@@ -1342,7 +1353,8 @@ memset( (void *)work_pad_i, 0, sizeof(int) * X_n * aligned_X_c * (padded_X_d) * 
                         for (d=0; d<Y_d; d++) {{
                             for (h=0; h<Y_h; h++) {{
                                 for (w=0; w<Y_w; w++) {{
-                                    *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = B[oc];
+//                                    *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = B[oc];
+                                    *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = 0;
                                 }}
                             }}
                         }}
@@ -1396,11 +1408,13 @@ memset( (void *)work_pad_i, 0, sizeof(int) * X_n * aligned_X_c * (padded_X_d) * 
                 '''
                 if (W_scale_len == 1): # W_scale is scalar
                     TemplateStatements += '''
-                                    *(_Y_pt + mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_o[mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] * X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+//                                    *(_Y_pt + mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_o[mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] * X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+                                    *(_Y_pt + mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round((work_pad_o[mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] +B[oc])* X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                     '''
                 else: # W_scale is 1D-array
                     TemplateStatements += '''
-                                    *(_Y_pt + mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_o[mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] * X_scale[0] * W_scale[oc] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+//                                    *(_Y_pt + mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_o[mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] * X_scale[0] * W_scale[oc] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+                                    *(_Y_pt + mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round((work_pad_o[mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] +B[oc])* X_scale[0] * W_scale[oc] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                     '''
                 TemplateStatements += '''
                                 }}
@@ -1429,8 +1443,8 @@ memset( (void *)work_pad_i, 0, sizeof(int) * X_n * aligned_X_c * (padded_X_d) * 
                     for (d=0; d<Y_d; d++) {{
                         for (h=0; h<Y_h; h++) {{
                             for (w=0; w<Y_w; w++) {{
-//                                *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = B[oc];
                                 work_pad_int[mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] = B[oc];
+//                                work_pad_int[mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] = 0;
                             }}
                         }}
                     }}
@@ -1494,11 +1508,13 @@ memset( (void *)work_pad_i, 0, sizeof(int) * X_n * aligned_X_c * (padded_X_d) * 
                         TemplateStatements += '''
 //                                Y[n][oc][h][w] = (uint8_t)round(work_pad_int[mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w )] * X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]);
                                 *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_int[mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] * X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+//                                *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round((work_pad_int[mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] +B[oc])* X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                         '''
                     else: # W_zero_point is 1D-array
                         TemplateStatements += '''
 //                                Y[n][oc][h][w] = (uint8_t)round(work_pad_int[mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w )] * X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]);
                                 *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_int[mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] * X_scale[0] * W_scale[oc] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+//                                *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round((work_pad_int[mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] +B[oc])* X_scale[0] * W_scale[oc] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                         '''
                     TemplateStatements += '''
                             }}
@@ -1526,9 +1542,9 @@ memset( (void *)work_pad_i, 0, sizeof(int) * X_n * aligned_X_c * (padded_X_d) * 
                                             current_w = w*stride_w+kw*dilation_w-pad_w_begin;
                                             if (current_w<0 || current_w>=X_w) {{ continue; }}
                                             work_pad_int[mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w )] += (*(_X_pt + mat_idx5(n, X_n, oc, Y_c, current_d, X_d, current_h, X_h, current_w, X_w)))
-                                                                * (*(_W_pt + mat_idx5(oc, Y_c, (ic/group), (X_c/group), kd, kernel_shape_d_max, kh, kernel_shape_h_max, kw, kernel_shape_w_max)));
+                                                                * (*(_W_pt + mat_idx5(oc, Y_c, (oc/group), (X_c/group), kd, kernel_shape_d_max, kh, kernel_shape_h_max, kw, kernel_shape_w_max)));
                                             x_zero_point_shift += (*(_X_pt + mat_idx5(n, X_n, oc, X_c, current_d, X_d, current_h, X_h, current_w, X_w)));
-                                            w_zero_point_shift += (*(_W_pt + mat_idx5(oc, Y_c, (ic/group), (X_c/group), kd, kernel_shape_d, kh, kernel_shape_h, kw, kernel_shape_w)));
+                                            w_zero_point_shift += (*(_W_pt + mat_idx5(oc, Y_c, (oc/group), (X_c/group), kd, kernel_shape_d, kh, kernel_shape_h, kw, kernel_shape_w)));
                                             kernel_counter++;
                                         }}
                                     }}
@@ -1558,11 +1574,13 @@ memset( (void *)work_pad_i, 0, sizeof(int) * X_n * aligned_X_c * (padded_X_d) * 
                         TemplateStatements += '''
 //                                Y[n][oc][h][w] = qlinearconv_CLAMP(round(work_pad_int[mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w )] * X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                                 *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_int[mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] * X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+//                                *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round((work_pad_int[mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] +B[oc])* X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                         '''
                     else: # W_zero_point is 1D-array
                         TemplateStatements += '''
 //                                Y[n][oc][h][w] = qlinearconv_CLAMP(round(work_pad_int[mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w )] * X_scale[0] * W_scale[oc] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                                 *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_int[mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] * X_scale[0] * W_scale[oc] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+//                                *(_Y_pt + mat_idx5(n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round((work_pad_int[mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] +B[oc])* X_scale[0] * W_scale[oc] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                         '''
                     TemplateStatements += '''
                             }}
@@ -1623,11 +1641,13 @@ memset( (void *)work_pad_i, 0, sizeof(int) * X_n * aligned_X_c * (padded_X_d) * 
                         TemplateStatements += '''
 //                                        Y[n][oc][h][w] = qlinearconv_CLAMP(round(work_pad_int[mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w )] * X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                                         *(_Y_pt + mat_idx5(n, Y_n, current_group*Y_c/group+oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_int[mat_idx5( n, Y_n, current_group*Y_c/group+oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] * X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+//                                        *(_Y_pt + mat_idx5(n, Y_n, current_group*Y_c/group+oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round((work_pad_int[mat_idx5( n, Y_n, current_group*Y_c/group+oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] +B[oc])* X_scale[0] * W_scale[0] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                         '''
                     else: # W_zero_point is 1D-array
                         TemplateStatements += '''
 //                                        Y[n][oc][h][w] = qlinearconv_CLAMP(round(work_pad_int[mat_idx5( n, Y_n, oc, Y_c, d, Y_d, h, Y_h, w, Y_w )] * X_scale[0] * W_scale[oc] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                                         *(_Y_pt + mat_idx5(n, Y_n, current_group*Y_c/group+oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round(work_pad_int[mat_idx5( n, Y_n, current_group*Y_c/group+oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] * X_scale[0] * W_scale[oc] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
+//                                        *(_Y_pt + mat_idx5(n, Y_n, current_group*Y_c/group+oc, Y_c, d, Y_d, h, Y_h, w, Y_w)) = qlinearconv_CLAMP(round((work_pad_int[mat_idx5( n, Y_n, current_group*Y_c/group+oc, Y_c, d, Y_d, h, Y_h, w, Y_w)] +B[oc])* X_scale[0] * W_scale[oc] / Y_scale[0] + Y_zero_point[0]),{Y_min},{Y_max});
                         '''
                     TemplateStatements += '''
                                     }}
