@@ -1,6 +1,6 @@
 onnx==1.6.0
 tf2onnx==1.5.4
-tensorflow==1.15.0
+tensorflow==1.15.2
 keras2onnx==1.6.0
 skl2onnx==1.6.0
 Keras
