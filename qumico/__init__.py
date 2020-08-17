@@ -31,5 +31,5 @@ QUMICO_TEMPLATE_PATH = path.join(QumicoRootPath, QUMICO_TEMPLATE)
 
 SUPPORT_ONNX_OPSET = 10
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"
 QUMICO_VERSION = __version__
