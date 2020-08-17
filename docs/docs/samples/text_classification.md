@@ -60,6 +60,10 @@ pythonインタプリタからnltk.download()を実行する事で、必要な�
 Qumicoをgit cloneしたディレクトリから「samples/text_classification/keras」 へ移動してください。  
 Qumicoを使用してC言語に変換する前に、学習したモデルが正しく推論できるかを確認します。次のコマンドを実行してください。  
 
+推論をするために、以下のサイトから、train.csvとtest.csvをダウンロードし、samples/text_classification/keras/data に保存してください。
+
+https://www.kaggle.com/c/nlp-getting-started
+
 ```sh
 python3 infer.py
 ```

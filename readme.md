@@ -3,8 +3,9 @@
 
 
 ## NEW!
-LSTMに対応しました。
-- [samples/text_classification](/docs/docs/samples/text_classification.md)：LSTMを使ったテキスト分類
+LSTMのサンプルがcolab対応しました
+- [samples/text_classification/keras/text_classification.ipynb](samples/text_classification/keras/text_classification.ipynb)：LSTMを使ったテキスト分類
+
 
 ## 概要
 `Qumico`(クミコ)は、パソナテックが独自開発したフレームワークです。<br>
@@ -46,7 +47,8 @@ IoT、ロボット、AI家電等、エッジ機器でディープラーニング
 - [tiny_yolo_v2_yad2k](/docs/docs/samples/tiny_yolo_yad2k.md)：tiny_yolo_v2_yad2k(推論のみ, RapsberryPi向け) - [colab](https://colab.research.google.com/github/PasonaTech-Inc/Qumico/blob/master/samples/tiny_yolo_v2_yad2k/keras/tiny_yolo_v2_yad2k_colab.ipynb)：colabサンプル
 - [mobilenet](/docs/docs/samples/mobilenet.md)：Mobilenet V1(量子化済み, TFLite形式) - [colab](https://colab.research.google.com/github/PasonaTech-Inc/Qumico/blob/master/samples/mobilenet/tensorflow/mobilenet_colab.ipynb)：colabサンプル
 - [automl_dogcat](/docs/docs/samples/automl_dogcat.md)：AutoMLを利用した識別 - [colab](https://colab.research.google.com/github/PasonaTech-Inc/Qumico/blob/master/samples/automl_dogcat/tensorflow/DogCat_colab.ipynb)：colabサンプル
-- [samples/text_classification](/docs/docs/samples/text_classification.md)：LSTMを使ったテキスト分類
+- [text_classification](/docs/docs/samples/text_classification.md)：LSTMを使ったテキスト分類 - [colab](https://colab.research.google.com/github/PasonaTech-Inc/Qumico/blob/master/samples/text_classification/keras/text_classification.ipynb
+)：colabサンプル
 
 ## レファレンス
 - GitHubサイト
