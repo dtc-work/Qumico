@@ -3,7 +3,7 @@ import ctypes
 from os import path
 
 import numpy as np
-from keras.preprocessing.image import load_img, img_to_array
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
 
 from samples.vgg16.keras import vgg16_generate_data
 

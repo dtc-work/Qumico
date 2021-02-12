@@ -1,7 +1,7 @@
 import os
 import tensorflow as tf
-from keras import backend as K
-from keras.models import model_from_json, model_from_yaml
+from tensorflow.keras import backend as K
+from tensorflow.keras.models import model_from_json, model_from_yaml
 import qumico.common.tf2onnx_tool as converter
 
 def keras_save_to_onnx(output_path, onnx_name, model_name, ckpt_name, pb_name, cache_path, freeze_pb_name,

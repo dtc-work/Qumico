@@ -2,23 +2,7 @@
 
 ## 事前準備
 
-Qumicoは、Python3.6以上で動作します。
-また、Qumicoを使うためには下記のpython3ライブラリが必要で、事前に用意してください。
-
-```sh
-$ pip3 install [インストールするpython3ライブラリ]
-```
-
-インストールするpython3ライブラリ項目
-```
- onnx==1.5.0
- tf2onnx==1.5.1
- tensorflow==1.13.2
- Keras
- numpy
- pillow
- opencv-python
-```
+Qumicoは、Python3.8以上で動作します。
 
 ## git clone
 
@@ -39,7 +23,7 @@ sudo pip3 install -e .　
 ##  アンインストール
 
 ```sh
-python3 setup.py install --record files.txt
+python setup.py install --record files.txt
 cat files.txt | xargs rm -rf
 ```
 
@@ -48,7 +32,7 @@ Qumicoディレクトリから以下のコマンドを実行してください�
 
 ```sh
 cd samples/mlp/tensorflow
-python3 mlp_train.py 
+python mlp_train.py 
 ```
 プログラムが起動し、以下の表示がされれば正しくインストールされています。
 

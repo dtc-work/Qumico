@@ -97,9 +97,11 @@ test_report
 .mypy_cache
 virtualenv
 venv
+.metals
+.venv
 
 #output C code
-out_c/*
+out_c/
 
 # mkdocs
 docs/site
@@ -107,3 +109,4 @@ docs/site
 #install
 qumico.egg-info/
 docs/docs/API/api.md
+

@@ -32,6 +32,8 @@ def pb_to_onnx(freeze_pb_file, onnx_file, model_name, output_op_name):
                                                          opset=SUPPORT_ONNX_OPSET)
             model_proto = onnx_graph.make_model(model_name)
 
+        model_proto.opset_import[0].version = SUPPORT_ONNX_OPSET
+
         with open(onnx_file, 'wb') as f:
             f.write(model_proto.SerializeToString())
             print(onnx_file + 'を作成しました。')

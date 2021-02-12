@@ -1,4 +1,5 @@
 import unittest
+import sys
 
 
 def suite_helper_by_discover(test_dir):
@@ -10,4 +11,6 @@ def suite_helper_by_discover(test_dir):
 
 if __name__ == "__main__":
     runner = unittest.TextTestRunner(verbosity=2)
-    runner.run(suite_helper_by_discover("./"))
+    result = runner.run(suite_helper_by_discover("./"))
+    if not result.wasSuccessful():
+        sys.exit(1) # failure or error exist

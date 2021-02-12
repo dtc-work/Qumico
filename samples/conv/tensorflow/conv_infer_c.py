@@ -2,7 +2,7 @@ import ctypes
 from os import path
 
 import numpy as np
-from keras.datasets import mnist
+from tensorflow.keras.datasets import mnist
 
 import samples.utils.common_tool as common
 

@@ -1,64 +1,61 @@
-import tensorflow as tf
-from keras.datasets import mnist
-from samples.utils.dataset_tool import DatasetTool
-from samples.conv.tensorflow.conv_model import CONV
-from qumico.Qumico import Qumico
+from tensorflow import keras
 import os
-
-def conv_train(model, train_data, epoch, batch_size, save_flag=True, save_path=None, save_file_name=None):
-    tf.reset_default_graph()
-    total_batch = int(train_data.total_size / batch_size)
-    ckpt_file = None
-    pb_file = None
-
-    with tf.Session(graph=model.graph) as sess_train:
-        sess_train.run(model.init)
-        for epoch in range(epoch):
-            avg_loss = 0
-            acc = 0
-            for i in range(total_batch):
-                batch_x, batch_y = train_data.next_batch_once(batch_size=batch_size)
-                _, l, c = sess_train.run([model.train_op, model.loss_op, model.predict_op],
-                                         feed_dict={model.x: batch_x, model.y_t: batch_y})
-
-                avg_loss += l / total_batch
-                acc += c / total_batch
-
-            print('Epoch: ', (epoch + 1), 'Loss: ', avg_loss, 'Accuracy: ', acc)
-
-        if save_flag:
-            if save_path is None:
-                save_path = 'model'
-            if save_file_name is None:
-                save_file_name = 'sample'
-            if not os.path.exists(save_path):
-                os.makedirs(save_path)
-
-            ckpt_name = save_file_name + '.ckpt'
-            pb_name = save_file_name + '.pb'
-            ckpt_file = os.path.join(save_path, ckpt_name)
-            pb_file = os.path.join(save_path, pb_name)
-            model.saver.save(sess_train, ckpt_file)
-            model.pb_saver.write_graph(sess_train.graph, save_path, pb_name, as_text=False)
-
-
-    return ckpt_file, pb_file
-
+import numpy as np
+import onnx
+import keras2onnx
+import qumico
 
 if __name__ == '__main__':
     # prepare the train date
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    x_train = x_train.reshape(60000, 784) / 255.
-    x_test = x_test.reshape(10000, 784) / 255.
-    dataset_train = DatasetTool(data=x_train, label=y_train, training_flag=True, repeat=False, one_hot_classes=10)
+    num_classes = 10
+    input_shape = (28, 28, 1)
 
-    # load model
-    mlp_example = CONV(output_op_name='output')
+    # the data, split between train and test sets
+    (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
 
-    # train and save ckpt pb file
-    ckpt_file, pb_file = conv_train(mlp_example, dataset_train, epoch=10, batch_size=50)
+    # Scale images to the [0, 1] range
+    x_train = x_train.astype("float32") / 255
+    x_test = x_test.astype("float32") / 255
+    # Make sure images have shape (28, 28, 1)
+    x_train = np.expand_dims(x_train, -1)
+    x_test = np.expand_dims(x_test, -1)
 
-    # prepare Qumico Convertor
-    converter = Qumico()
-    converter.conv_tf_to_onnx(output_path='onnx', model_name='tensorflow_conv', output_op_name='output',
-                              cache_path='model', ckpt_file=ckpt_file, pb_file=pb_file)
+    # convert class vectors to binary class matrices
+    y_train = keras.utils.to_categorical(y_train, num_classes)
+    y_test = keras.utils.to_categorical(y_test, num_classes)
+
+    model = keras.Sequential(
+        [
+            keras.Input(shape=input_shape),
+            keras.layers.Conv2D(32, kernel_size=(5, 5), activation="relu"),
+            keras.layers.MaxPooling2D(pool_size=(2, 2)),
+            keras.layers.Conv2D(64, kernel_size=(3, 3), activation="relu"),
+            keras.layers.MaxPooling2D(pool_size=(2, 2)),
+            keras.layers.Flatten(),
+            keras.layers.Dropout(0.5),
+            keras.layers.Dense(1024, activation="relu"),
+            keras.layers.Dropout(0.5),
+            keras.layers.Dense(num_classes, activation="softmax")
+        ]
+    )
+    model.summary()
+    model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
+    history = model.fit(x_train, y_train, epochs=10, validation_data=(x_test, y_test))
+
+    model_folder = 'model'
+    if not os.path.exists(model_folder):
+        os.mkdir(model_folder)
+    h5_path = os.path.join(model_folder, 'tensorflow_conv.h5')
+    model.save(h5_path)
+
+    onnx_folder = 'onnx'
+    if not os.path.exists(onnx_folder):
+        os.mkdir(onnx_folder)
+    onnx_path = os.path.join(onnx_folder, 'tensorflow_conv.onnx')
+    onnx_model = keras2onnx.convert_keras(model, 'tensorflow_conv', target_opset=qumico.SUPPORT_ONNX_OPSET)
+    onnx.save_model(onnx_model, onnx_path)
+
+    print('h5ファイルを生成しました。出力先:', h5_path)
+    print('onnxファイルを生成しました。出力先:', onnx_path)
+
+

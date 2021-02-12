@@ -76,20 +76,22 @@ class TestBackend(unittest.TestCase):
     def test_qumico_backend_run_model_no_model(self):
         self.assertRaises(AttributeError, lambda: self.qumico_backend.run_model(model=None, inputs=None))
 
-    def test_qumico_backend_run_model(self):
-        result = self.qumico_backend.run_model(model=self._create_model(), inputs=None)
-        self.assertTrue(numpy.array_equal(numpy.array(result[0]), numpy.array([[0.0, 2.0],
-                                                                               [0.0, 0.0],
-                                                                               [-8.0, 11.2]])))
+    ## postpone to further release
+    #def test_qumico_backend_run_model(self):
+    #    result = self.qumico_backend.run_model(model=self._create_model(), inputs=None)
+    #    self.assertTrue(numpy.array_equal(numpy.array(result[0]), numpy.array([[0.0, 2.0],
+    #                                                                           [0.0, 0.0],
+    #                                                                           [-8.0, 11.2]])))
 
     def test_qumico_backend_run_node_no_Node(self):
         self.assertRaises(RuntimeError, lambda: self.qumico_backend.run_node(node=None, inputs=None))
 
-    def test_qumico_backend_run_node(self):
-        result = self.qumico_backend.run_node(node=self._create_node(), inputs=None)
-        self.assertTrue(numpy.array_equal(numpy.array(result[0]), numpy.array([[0.0, 1.0],
-                                                                               [2.0, -3.0],
-                                                                               [-4.0, 5.6]])))
+    ## postpone to further release
+    #def test_qumico_backend_run_node(self):
+    #    result = self.qumico_backend.run_node(node=self._create_node(), inputs=None)
+    #    self.assertTrue(numpy.array_equal(numpy.array(result[0]), numpy.array([[0.0, 1.0],
+    #                                                                           [2.0, -3.0],
+    #                                                                           [-4.0, 5.6]])))
 
     def test_qumico_backend_supports_device(self):
         self.assertTrue(self.qumico_backend.supports_device(device="CPU"))

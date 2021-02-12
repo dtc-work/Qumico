@@ -40,7 +40,7 @@ Qumicoをgit cloneしたディレクトリ「samples/automl_dogcat/tensorflow」
 Qumicoを使用してC言語に変換する前に、学習したモデルが正しく推論できるかを確認します。次のコマンドを実行してください。  
 
 ```sh
-python3 automl_infer.py
+python automl_infer.py
 ```
 
 推論結果として、最終行に以下が表示されれば成功です。  
@@ -57,7 +57,7 @@ C生成の前にTFLite形式をONNX形式に変換します。
 
 
 ```sh
-python3 automl_tflite_to_onnx.py 
+python automl_tflite_to_onnx.py 
 ```
 
 プログラム実行後、このように表示されれば正常に終了しています。  
@@ -72,7 +72,7 @@ onnxディレクトリにmodel.json, model.onnxが生成されていれば、onn
 上で生成したonnxファイルを使用し、ニューラルネットワークをCソースに変換します。
 
 ```sh
-python3 gen_c.py 
+python gen_c.py 
 ```
 
 このように表示されば、正常に終了しています。  
@@ -87,7 +87,7 @@ out_cディレクトリに、includeディレクトリとlibディレクトリ�
 上で生成した共有ライブラリqumico.soを使って推論を実行してみます。  
 
 ```sh
- python3 automl_infer_c.py 
+ python automl_infer_c.py 
 ```
 
 最後の2行が次のように表示され、Pythonを使った推論と同じ分類結果になれば、C言語で正しく推論ができています。  
@@ -102,7 +102,7 @@ finish
 デフォルトでは、OpenMP=有効、SIMD(Neon) =有効となります。  
 
 ```sh
-python3 gen_c_rpi.py 
+python gen_c_rpi.py 
 ```
 
 このように表示されればCソースの生成は成功です。

@@ -164,17 +164,17 @@ class LSTM(BackendHandler):
         mapping.update({'XDims':c_helper.generate_dim_bracket(self.input_tensor_shapes[0])})
 
         mapping.update({'wt': data_type.np2c(self.input_tensor_dtypes[1])})
-        mapping.update({'W': self.input_tensor_names[1]})
+        mapping.update({'W': self.input_tensor_names[1].replace('_lstm_', '_')})          # vi_lstm_W -> vi_W
         mapping.update({'WDims':c_helper.generate_dim_bracket(self.input_tensor_shapes[1])})
 
         mapping.update({'rt': data_type.np2c(self.input_tensor_dtypes[2])})
-        mapping.update({'R': self.input_tensor_names[2]})
+        mapping.update({'R': self.input_tensor_names[2].replace('_lstm_', '_')})
         mapping.update({'RDims':c_helper.generate_dim_bracket(self.input_tensor_shapes[2])})
 
 
         if 3 < len(self.input_tensor):
             mapping.update({'bt': data_type.np2c(self.input_tensor_dtypes[3])})
-            mapping.update({'B': self.input_tensor_names[3]})
+            mapping.update({'B': self.input_tensor_names[3].replace('_lstm_', '_')})
             mapping.update({'BDims': c_helper.generate_dim_bracket(self.input_tensor_shapes[3])})
             res += "{bt} {B}{BDims},"
 

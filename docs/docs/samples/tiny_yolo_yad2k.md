@@ -13,7 +13,7 @@ cd Qumico/samples/tiny_yolo_v2_yad2k/keras
 次のコマンドを実行してください。
 
 ```sh
-python3 tiny_yolo_v2_yad2k_conv_onnx.py
+python tiny_yolo_v2_yad2k_conv_onnx.py
 ```
 プログラム実行後、次のように表示されてれば正常に終了しています。
 ```
@@ -25,7 +25,7 @@ onnx/tiny_yolo_v2_yad2k.onnxを作成しました。
 
 gen_c.pyを次のように実行してください。
 ```sh
-python3 gen_c.py 
+python gen_c.py 
 ```
 このように表示されば、正常に終了しています。
 ```
@@ -49,7 +49,7 @@ out_cディレクトリディレクトリに、次のファイルが作成でき
 次のコマンドを実行してください。
 
 ```sh
-python3 tiny_yolo_v2_yad2k_optimize_onnx.py
+python tiny_yolo_v2_yad2k_optimize_onnx.py
 ```
 プログラム実行後、特に表示するメッセージはありません。
 
@@ -57,7 +57,7 @@ python3 tiny_yolo_v2_yad2k_optimize_onnx.py
 ## Pythonを使った推論
 Qumicoを使用してC言語に変換する前に、学習したモデルが正しく推論できるかを確認します。次のコマンドを実行してください。
 ```sh
-python3 tiny_yolo_v2_yad2k_infer.py
+python tiny_yolo_v2_yad2k_infer.py
 ```
 
 このように表示されば、正常に終了しています。
@@ -72,7 +72,7 @@ finish
 
 gen_c_optimize.pyを次のように実行してください。
 ```sh
-python3 gen_c_optimize.py 
+python gen_c_optimize.py 
 ```
 このように表示されば、正常に終了しています。
 ```
@@ -135,7 +135,7 @@ cd keras
 
 次にビルドを実行してください。
 ```sh
-python3 build.py
+python build.py
 ```
 
 最適化していないONNXモデルを使用する場合  
@@ -153,7 +153,7 @@ build.py中の次の箇所にある、"out_c_optimize"を、"out_c"に書き換�
 
 1回だけ推論する場合、下記のコマンドを実行してください。(images/person.jpgを推論する)
 ```sh
-python3 tiny_yolo_v2_yad2k_infer_c.py
+python tiny_yolo_v2_yad2k_infer_c.py
 ```
 pythonで推論した場合と同じ結果になれば、正しく推論されています。
 
@@ -182,7 +182,7 @@ tiny_yolo_v2_yad2k_infer_c.py中の次の箇所にある、"out_c_optimize"を�
 
 連続して推論する場合、下記のコマンドを実行してください。
 ```sh
-python3 app.py
+python app.py
 ```
 
 最適化していないONNXモデルを使用する場合  

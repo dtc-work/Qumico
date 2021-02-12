@@ -130,21 +130,23 @@ class TestAnnotationDatasetTool(unittest.TestCase):
                           lambda: self.annotation_dataset_tool.get_annotation_label(full_path=None,
                                                                                     label_file_type="voc_xml"))
 
-    def test_get_annotation_label_type_voc_xml_no_resize_rate_w(self):
-        self.assertRaises(TypeError,
-                          lambda: self.annotation_dataset_tool.get_annotation_label(full_path=self.test_annotation,
-                                                                                    label_file_type="voc_xml",
-                                                                                    one_hot_classes=None,
-                                                                                    resize_rate_w=None,
-                                                                                    resize_rate_h=None))
+    ## postpone to further release
+    #def test_get_annotation_label_type_voc_xml_no_resize_rate_w(self):
+    #    self.assertRaises(TypeError,
+    #                      lambda: self.annotation_dataset_tool.get_annotation_label(full_path=self.test_annotation,
+    #                                                                                label_file_type="voc_xml",
+    #                                                                                one_hot_classes=None,
+    #                                                                                resize_rate_w=None,
+    #                                                                                resize_rate_h=None))
 
-    def test_get_annotation_label_type_voc_xml_no_resize_rate_h(self):
-        self.assertRaises(TypeError,
-                          lambda: self.annotation_dataset_tool.get_annotation_label(full_path=self.test_annotation,
-                                                                                    label_file_type="voc_xml",
-                                                                                    one_hot_classes=None,
-                                                                                    resize_rate_w=0.1,
-                                                                                    resize_rate_h=None))
+    ## postpone to further release
+    #def test_get_annotation_label_type_voc_xml_no_resize_rate_h(self):
+    #    self.assertRaises(TypeError,
+    #                      lambda: self.annotation_dataset_tool.get_annotation_label(full_path=self.test_annotation,
+    #                                                                                label_file_type="voc_xml",
+    #                                                                                one_hot_classes=None,
+    #                                                                                resize_rate_w=0.1,
+    #                                                                                resize_rate_h=None))
 
     def test_get_annotation_label_type_voc_xml(self):
         class_list = self.annotation_dataset_tool.get_annotation_label(full_path=self.test_annotation,
@@ -159,24 +161,27 @@ class TestAnnotationDatasetTool(unittest.TestCase):
                                                                                            resize_rate_h=None,
                                                                                            resize_rate_w=None))
 
-    def test_get_bbox_xml_ext_no_resize_rate_w(self):
-        self.assertRaises(TypeError,
-                          lambda: self.annotation_dataset_tool.get_bbox_xml_ext(xml_file=self.test_annotation,
-                                                                                resize_rate_h=None,
-                                                                                resize_rate_w=None))
+    ## postpone to further release
+    #def test_get_bbox_xml_ext_no_resize_rate_w(self):
+    #    self.assertRaises(TypeError,
+    #                      lambda: self.annotation_dataset_tool.get_bbox_xml_ext(xml_file=self.test_annotation,
+    #                                                                            resize_rate_h=None,
+    #                                                                            resize_rate_w=None))
 
-    def test_get_bbox_xml_ext_no_resize_rate_h(self):
-        self.assertRaises(TypeError,
-                          lambda: self.annotation_dataset_tool.get_bbox_xml_ext(xml_file=self.test_annotation,
-                                                                                resize_rate_h=None,
-                                                                                resize_rate_w=0.1))
+    ## postpone to further release
+    #def test_get_bbox_xml_ext_no_resize_rate_h(self):
+    #    self.assertRaises(TypeError,
+    #                      lambda: self.annotation_dataset_tool.get_bbox_xml_ext(xml_file=self.test_annotation,
+    #                                                                            resize_rate_h=None,
+    #                                                                            resize_rate_w=0.1))
 
-    def test_get_bbox_xml_ext(self):
-        train_labels = self.annotation_dataset_tool.get_bbox_xml_ext(xml_file=self.test_annotation,
-                                                                     resize_rate_h=0.1,
-                                                                     resize_rate_w=0.1)
-
-        self.assertEqual(len(train_labels), 8)
+    ## postpone to further release
+    #def test_get_bbox_xml_ext(self):
+    #    train_labels = self.annotation_dataset_tool.get_bbox_xml_ext(xml_file=self.test_annotation,
+    #                                                                 resize_rate_h=0.1,
+    #                                                                 resize_rate_w=0.1)
+    #
+    #    self.assertEqual(len(train_labels), 8)
 
     def test_json_reader_invalid_json_file_path(self):
         self.assertRaises(FileNotFoundError, lambda: self.annotation_dataset_tool.json_reader(json_file_path=""))

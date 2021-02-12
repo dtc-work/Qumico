@@ -1,13 +1,15 @@
-from keras.models import Model
-from keras.layers import Dense, GlobalAveragePooling2D
-from keras.applications.vgg16 import VGG16
-from keras.preprocessing.image import ImageDataGenerator
-from keras.initializers import TruncatedNormal
-from keras.optimizers import SGD
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
+from tensorflow.keras.applications.vgg16 import VGG16
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.initializers import TruncatedNormal
+from tensorflow.keras.optimizers import SGD
 import os
 
 from samples.vgg16.keras import vgg16_generate_data
-
+import onnx
+import keras2onnx
+import qumico
 
 # Parameters
 classes_num = 5
@@ -39,7 +41,7 @@ try:
         shuffle=True
     )
 except FileNotFoundError:
-    print("trainデータがみつかりません。Vgg16_generate_data.pyを実行してください。")
+    print("trainデータがみつかりません。vgg16_generate_data.pyを実行してください。")
     exit(1)
 
 def data_config(_classes_num, _batch_size, _epochs, _classes, _all_data_num, _train_dir, _x_data, _y_data, _test_flag):
@@ -92,10 +94,7 @@ def train(train_generator):
     if test_flag:
         hist = model.fit(x=x_data, y=y_data, epochs=epochs, verbose=1)
     else:
-        hist = model.fit_generator(train_generator,
-                                   epochs=epochs,
-                                   steps_per_epoch=all_data_num/batch_size,
-                                   verbose=1)
+        hist = model.fit(train_generator, epochs=epochs, verbose=1)
 
 def main():
     train(train_generator)
@@ -113,7 +112,15 @@ def main():
     open(yaml_file, 'w').write(yaml_string)
     model.save_weights(h5_file)
 
+    onnx_folder = 'onnx'
+    if not os.path.exists(onnx_folder):
+        os.mkdir(onnx_folder)
+    onnx_path = os.path.join(onnx_folder, 'sample.onnx')
+    onnx_model = keras2onnx.convert_keras(model, 'sample', target_opset=qumico.SUPPORT_ONNX_OPSET)
+    onnx.save_model(onnx_model, onnx_path)
+
     print(h5_file, "を作成しました。")
+    print('onnxファイルを生成しました。出力先:', onnx_path)
 
 
 if __name__ == "__main__":

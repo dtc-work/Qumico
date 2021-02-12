@@ -44,7 +44,7 @@ twitterに投稿されたニュースをフェイクニュースかどうかを�
 ## NLTKライブラリのダウンロード
 
 ターミナルより、pythonインタプリタを起動し、以下のコマンドを入力してください。
-pythonインタプリタはterminalよりpython、もしくはpython3で起動します。
+pythonインタプリタはterminalよりpythonで起動します。
 pythonインタプリタが起動すると >>> のプロンプトが表示されます。
 
 ```python
@@ -65,7 +65,7 @@ Qumicoを使用してC言語に変換する前に、学習したモデルが正�
 https://www.kaggle.com/c/nlp-getting-started
 
 ```sh
-python3 infer.py
+python infer.py
 ```
 
 最後に推論結果として、このような表示がでれば正しく動いています。
@@ -84,7 +84,7 @@ C生成の前にHDF形式のモデルをONNX形式に変換します。
 
 
 ```sh
-python3 conv_to_onnx.py
+python conv_to_onnx.py
 ```
 
 プログラム実行後、このように表示されれば正常に終了しています。  
@@ -99,7 +99,7 @@ onnxディレクトリにTweetDisaster.onnxが生成されていれば、onnx変
 上で生成したonnxファイルを使用し、ニューラルネットワークをCソースに変換します。
 
 ```sh
-python3 gen_c.py 
+python gen_c.py 
 ```
 
 このように表示されば、正常に終了しています。  
@@ -114,7 +114,7 @@ out_cディレクトリに、includeディレクトリとlibディレクトリ�
 上で生成した共有ライブラリqumico.soを使って推論を実行してみます。  
 
 ```sh
- python3 infer_c.py 
+ python infer_c.py 
 ```
 
 推論結果が、先に実行したPythonと同じあればC言語への変換は正しく行われています。

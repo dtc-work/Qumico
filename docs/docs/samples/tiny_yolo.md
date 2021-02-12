@@ -38,7 +38,7 @@ data_list_pathとlabel_list_pathの変更はありません。
 
 次のコマンドを実行して、学習を行います。
 ```sh
-python3 tiny_yolo2_train.py
+python tiny_yolo2_train.py
 ```
 
 プログラム実行後、このように表示されれば正常に終了しています。
@@ -66,7 +66,7 @@ Qumicoを使用してC言語に変換する前に、学習したモデルが正�
 
 その後、次のコマンドを実行してください。
 ```sh
-python3 tiny_yolo2_infer.py
+python tiny_yolo2_infer.py
 ```
 Tiny YOLOv2の推論結果として、次のように表示されれば成功です。  
 
@@ -77,7 +77,7 @@ Tiny YOLOv2の推論結果として、次のように表示されれば成功で
 上で生成したonnxファイルを使用し、ニューラルネットワークをCソースに変換します。
 
 ```sh
-python3 gen_c.py 
+python gen_c.py 
 ```
 このように表示されば、正常に終了しています。
 ```
@@ -90,7 +90,7 @@ out_cディレクトリに、includeとlibディレクトリ、qumico.cとqumico
 ## C言語での推論実行
 上で生成した共有ライブラリqumico.soを使って推論を実行します。
 ```sh
-python3 tiny_yolo2_infer_c.py 
+python tiny_yolo2_infer_c.py 
 ```
 Pythonを使った推論と同じ結果が表示されれば、C言語で正しく推論ができています。
 

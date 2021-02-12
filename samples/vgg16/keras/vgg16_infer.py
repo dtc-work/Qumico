@@ -1,5 +1,5 @@
-from keras.models import model_from_json
-from keras.preprocessing.image import load_img, img_to_array
+from tensorflow.keras.models import model_from_json
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
 
 import numpy as np
 import os

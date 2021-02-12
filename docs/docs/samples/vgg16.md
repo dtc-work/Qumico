@@ -9,7 +9,7 @@ VGG16を使用して花の識別を行います。本サンプルでは、一度
 まず、Qumicoをgit cloneしたディレクトリの samples/vgg16/keras へ移動してください。
 次に、下記のコマンドを実行して、学習データをダウンロードしてください。
 ```sh
-python3 vgg16_generate_data.py
+python vgg16_generate_data.py
 ```
 
 ## 学習とKerasモデルの保存
@@ -17,30 +17,21 @@ python3 vgg16_generate_data.py
 次のコマンドを実行してください。
 
 ```sh
-python3 vgg16_train.py 
+python vgg16_train.py 
 ```
 プログラム実行後、このように表示されれば正常に終了しています。
+onnxディレクトリにvgg16.onnxのファイルが生成されていれば、ONNXへの変換は成功です。
+
 ```
 model/sample.hdf5 を作成しました。
+onnxファイルを生成しました。出力先: onnx/sample.onnx
 ```
 
-## KerasモデルからONNXへの変換
-
-続いて、保存したKerasモデルをONNXへ変換します。次のコマンドを実行してください。
-```
-python3 vgg16_to_onnx.py 
-```
-プログラム実行後、このように表示されれば正常に終了しています。
-```
-onnx/vgg16.onnxを作成しました。
-```
-
-onnxディレクトリにvgg16.onnxのファイルが生成されていれば、ONNXへの変換は成功です。
 
 ## Pythonを使った推論
 Qumicoを使用してC言語に変換する前に、学習したモデルが正しく推論できるかを確認します。次のコマンドを実行してください。
 ```sh
-python3 vgg16_infer.py
+python vgg16_infer.py
 ```
 
 ![flower](test_flower.jpg)
@@ -54,7 +45,7 @@ Sunflower
 上で生成したonnxファイルを使用し、ニューラルネットワークをCソースに変換します。次のコマンドを実行してください。
 
 ```sh
-python3 gen_c.py 
+python gen_c.py 
 ```
 このように表示されば、正常に終了しています。
 ```
@@ -65,7 +56,7 @@ out_cディレクトリに、includeとlibディレクトリ、qumico.cとqumico
 ## C言語での実行
 上で生成した共有ライブラリqumico.soを使って推論を実行してみます。
 ```sh
- python3 vgg16_infer_c.py 
+ python vgg16_infer_c.py 
 ```
 
 このように表示され、Pythonを使った推論と同じ結果になれば、C言語で正しく推論ができています。

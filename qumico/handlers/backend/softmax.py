@@ -63,7 +63,9 @@ class Softmax(BackendHandler):
     
 
         axis = self.attrs['axis']
-        batch_size = 1
+        if axis == -1:
+            axis = self.input_tensor_ndims[0] - 1
+        batch_size = 1 
         for d in range(0, axis):
             batch_size *= self.input_tensor_shapes[0][d]
         num = 1

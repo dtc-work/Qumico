@@ -10,6 +10,7 @@ from onnx import mapping, checker
 from qumico.common.tflite_helper import TFLITE_TENSOR_TYPE_TO_NP_TYPE
 from qumico.ir import tflite
 from qumico import QumicoRootPath
+from  qumico import SUPPORT_ONNX_OPSET
 
 # todo decorator adaptive
 import qumico.common.keras_helper as k_helper
@@ -164,6 +165,7 @@ class TFLiteFrontend(BaseFrontend):
 
     def _create_onnx_model(self, graph, **kwargs):
         model = helper.make_model(graph, **kwargs)
+        model.opset_import[0].version = SUPPORT_ONNX_OPSET
         checker.check_model(model)
         return model
 

@@ -17,7 +17,7 @@ Qumicoを使用してC言語に変換する前に、TensorFlowにてモデルが
 サンプル画像(samples/mobilenet/tensorflow/images/tiger.jpeg)を推論するために次のコマンドを実行してください。  
 
 ```sh
-python3 mobilenet_infer.py
+python mobilenet_infer.py
 ```
 
 推論結果として、最終行に以下が表示されれば成功です。  
@@ -35,7 +35,7 @@ cd Qumico/samples/mobilenet/tensorflow
 次のコマンドを実行してください。
 
 ```sh
-python3 mobilenet_tflite_to_onnx.py
+python mobilenet_tflite_to_onnx.py
 ```
 
 プログラム実行後、次のように表示されてれば正常に終了しています。  
@@ -51,7 +51,7 @@ onnx/mobilenet_v1_0.25_128_quant.onnxを作成しました。
 上で生成したonnxファイルを使用し、ニューラルネットワークをCソースに変換します。
 
 ```sh
-python3 gen_c.py 
+python gen_c.py 
 ```
 
 このように表示されば、正常に終了しています。  
@@ -66,7 +66,7 @@ out_cディレクトリに、includeとlibディレクトリ、qumico.cとqumico
 上で生成した共有ライブラリqumico.soを使って推論を実行してみます。  
 
 ```sh
- python3 mobilenet_infer_c.py 
+ python mobilenet_infer_c.py 
 ```
 
 このように表示され、Pythonを使った推論と同じ結果になれば、C言語で正しく推論ができています。  
