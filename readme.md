@@ -3,7 +3,7 @@
 
 
 ## NEW!
-tensorflowや各ライブラリの最新バージョンに対応しました。
+SampleのGoogle Colab対応を行いました。
 
 ## 概要
 `Qumico`(クミコ)は、パソナテックが独自開発したフレームワークです。<br>
@@ -38,7 +38,6 @@ IoT、ロボット、AI家電等、エッジ機器でディープラーニング
 
 
 ## サンプル
-colabのサンプルは次回のバージョンアップで対応予定です。
 
 - [mlp](/docs/docs/samples/mlp.md)：MultiLayer Perceptronサンプル - [colab](https://colab.research.google.com/github/PasonaTech-Inc/Qumico/blob/master/samples/mlp/tensorflow/mlp_colab.ipynb)：colabサンプル
 - [conv](/docs/docs/samples/conv.md)：Convolutionサンプル - [colab](https://colab.research.google.com/github/PasonaTech-Inc/Qumico/blob/master/samples/conv/tensorflow/conv_colab.ipynb)：colabサンプル
