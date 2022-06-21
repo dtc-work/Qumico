@@ -1,6 +1,6 @@
 keras2onnx==1.7.0
 nltk==3.5
-numpy==1.18.5
+numpy==1.22.0
 onnx==1.8.0
 pandas==1.1.4
 Pillow==8.0.1
